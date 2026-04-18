@@ -1,4 +1,4 @@
-const CACHE = 'briefing-v3';
+const CACHE = 'briefing-gemini-v1';
 const ASSETS = ['/', '/index.html', '/manifest.json'];
 
 self.addEventListener('install', e => {

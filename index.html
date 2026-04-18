@@ -242,6 +242,7 @@ function saveKey() {
   const el = document.getElementById('keySaved');
   el.style.display = 'block';
   setTimeout(() => el.style.display = 'none', 2000);
+  loadStocks();
 }
 
 function getKey() {
@@ -255,7 +256,8 @@ function toggleCheck(el, id) {
 window.addEventListener('load', () => {
   const saved = localStorage.getItem('gemini_key');
   if (saved) document.getElementById('apiKey').value = saved;
-  loadAllPrices();
+  loadCoins();
+  if (saved) loadStocks();
   startAutoRefresh();
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 });
@@ -309,38 +311,65 @@ async function loadCoins() {
 }
 
 async function loadStocks() {
+  const key = getKey();
+  if (!key) {
+    document.getElementById('stockGrid').innerHTML = STOCKS.map(s =>
+      `<div class="market-card"><div class="card-sym">${s}</div><div class="card-price card-loading">키 필요</div></div>`
+    ).join('');
+    return;
+  }
   try {
+    const prompt = `현재 미국 주식 시장의 실시간 주가를 검색해서 아래 형식으로만 답해주세요. 다른 말은 절대 하지 마세요.
+TSLA:[현재가]:[등락률]
+NVDA:[현재가]:[등락률]
+SPY:[현재가]:[등락률]
+QQQ:[현재가]:[등락률]
+예시: TSLA:172.50:+2.31
+숫자만, 달러 기호 없이, 등락률은 +/-포함해서 소수점 2자리.`;
+
+    const r = await fetch(`${GEMINI_URL}?key=${key}`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        tools: [{ googleSearch: {} }],
+        generationConfig: { temperature: 0, maxOutputTokens: 100 }
+      })
+    });
+    if (!r.ok) throw new Error();
+    const data = await r.json();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
     const grid = document.getElementById('stockGrid');
-    const results = [];
-    for (const sym of STOCKS) {
-      try {
-        const r = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&range=2d`);
-        const d = await r.json();
-        const meta = d.chart?.result?.[0]?.meta;
-        if (!meta) continue;
-        const price = meta.regularMarketPrice;
-        const prev = meta.previousClose || meta.chartPreviousClose;
-        const chg = ((price - prev) / prev) * 100;
-        const isUp = chg >= 0;
-        results.push({ sym, price, chg, isUp });
-      } catch(e) {}
-    }
     grid.innerHTML = '';
     const lines = [];
-    for (const { sym, price, chg, isUp } of results) {
-      const fmt = '$' + price.toLocaleString('en-US', {maximumFractionDigits: 2});
+    for (const line of text.trim().split('\n')) {
+      const parts = line.trim().split(':');
+      if (parts.length < 3) continue;
+      const sym = parts[0].trim();
+      const price = parseFloat(parts[1]);
+      const chgStr = parts[2].trim();
+      const chg = parseFloat(chgStr);
+      if (!sym || isNaN(price) || isNaN(chg)) continue;
+      const isUp = chg >= 0;
+      const fmt = '$' + price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
       grid.innerHTML += `<div class="market-card ${isUp?'up-card':'down-card'}">
         <div class="card-sym">${sym}</div>
         <div class="card-price">${fmt}</div>
-        <div class="card-chg ${isUp?'up':'down'}">${isUp?'+':''}${chg.toFixed(2)}%</div>
+        <div class="card-chg ${isUp?'up':'down'}">${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%</div>
       </div>`;
-      lines.push(`${sym}: ${fmt} (${isUp?'+':''}${chg.toFixed(2)}%)`);
+      lines.push(`${sym}: ${fmt} (${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%)`);
     }
-    if (results.length === 0) {
-      grid.innerHTML = STOCKS.map(s => `<div class="market-card"><div class="card-sym">${s}</div><div class="card-price card-loading">장 마감</div></div>`).join('');
+    if (!grid.innerHTML) {
+      grid.innerHTML = STOCKS.map(s =>
+        `<div class="market-card"><div class="card-sym">${s}</div><div class="card-price card-loading">장 마감</div></div>`
+      ).join('');
     }
     stockPriceText = lines.join(', ');
-  } catch(e) {}
+  } catch(e) {
+    document.getElementById('stockGrid').innerHTML = STOCKS.map(s =>
+      `<div class="market-card"><div class="card-sym">${s}</div><div class="card-price card-loading">오류</div></div>`
+    ).join('');
+  }
 }
 
 function setLoading(msg) {

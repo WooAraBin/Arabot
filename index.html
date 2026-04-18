@@ -242,7 +242,6 @@ function saveKey() {
   const el = document.getElementById('keySaved');
   el.style.display = 'block';
   setTimeout(() => el.style.display = 'none', 2000);
-  loadStocks();
 }
 
 function getKey() {
@@ -257,7 +256,9 @@ window.addEventListener('load', () => {
   const saved = localStorage.getItem('gemini_key');
   if (saved) document.getElementById('apiKey').value = saved;
   loadCoins();
-  if (saved) loadStocks();
+  document.getElementById('stockGrid').innerHTML = STOCKS.map(s =>
+    `<div class="market-card"><div class="card-sym">${s}</div><div class="card-price card-loading" style="font-size:11px;">브리핑 시 업데이트</div></div>`
+  ).join('');
   startAutoRefresh();
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 });
@@ -421,8 +422,12 @@ async function runBriefing() {
   const btn = document.getElementById('briefBtn');
   btn.disabled = true;
   document.getElementById('briefBtnText').textContent = '분석 중...';
-  setLoading('실시간 데이터 수집 및 분석 중...');
+  setLoading('실시간 데이터 수집 중...');
 
+  // 주식 가격 먼저 가져오기
+  if (wantStock) await loadStocks();
+
+  setLoading('시장 분석 중...');
   const today = new Date().toLocaleDateString('ko-KR', {year:'numeric',month:'long',day:'numeric'});
 
   let sections = '';

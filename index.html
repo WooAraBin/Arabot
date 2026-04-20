@@ -3,201 +3,342 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#080808">
+<meta name="theme-color" content="#F7F5F0">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="브리핑">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="LENZ">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
-<title>BRIEF.AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<title>LENZ</title>
 <style>
 :root {
-  --bg: #080808;
-  --bg2: #0f0f0f;
-  --bg3: #161616;
-  --bg4: #1e1e1e;
-  --border: rgba(255,255,255,0.06);
-  --border2: rgba(255,255,255,0.12);
-  --border3: rgba(255,255,255,0.22);
-  --text: #efefef;
-  --text2: #666;
-  --text3: #333;
-  --accent: #c8f542;
-  --accent-dim: rgba(200,245,66,0.1);
-  --up: #3ddc84;
-  --down: #ff4d4d;
-  --up-dim: rgba(61,220,132,0.1);
-  --down-dim: rgba(255,77,77,0.1);
+  --bg: #F7F5F0;
+  --bg2: #FFFFFF;
+  --bg3: #EFEDE8;
+  --navy: #0F1F3D;
+  --navy2: #1A3260;
+  --navy3: #2B4A8A;
+  --up: #0A7B4B;
+  --down: #C0392B;
+  --up-bg: rgba(10,123,75,0.07);
+  --down-bg: rgba(192,57,43,0.07);
+  --text: #0F1F3D;
+  --text2: #6B7A99;
+  --text3: #B0BAD0;
+  --border: rgba(15,31,61,0.08);
+  --border2: rgba(15,31,61,0.15);
+  --accent-light: rgba(26,50,96,0.07);
   --display: 'Syne', sans-serif;
   --sans: 'Noto Sans KR', sans-serif;
+  --nav-h: 60px;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100dvh; overscroll-behavior: none; }
-.app { max-width: 480px; margin: 0 auto; padding: 0 0 180px; }
 
-/* Header */
-.header { padding: 52px 20px 20px; border-bottom: 0.5px solid var(--border); position: relative; }
-.header::after { content: ''; position: absolute; top: 0; right: 0; width: 160px; height: 160px; background: radial-gradient(circle at top right, rgba(200,245,66,0.07) 0%, transparent 70%); pointer-events: none; }
-.header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-.logo { font-family: var(--display); font-size: 26px; font-weight: 800; letter-spacing: -0.5px; color: var(--text); }
-.logo em { color: var(--accent); font-style: normal; }
-.header-right { display: flex; align-items: center; gap: 10px; }
-.live-badge { font-family: var(--display); font-size: 9px; font-weight: 700; letter-spacing: 0.1em; color: var(--accent); border: 0.5px solid var(--accent); border-radius: 4px; padding: 3px 7px; }
-.status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text3); transition: all 0.4s; }
-.status-dot.active { background: var(--accent); box-shadow: 0 0 10px var(--accent); }
-.header-sub { font-size: 11px; color: var(--text2); letter-spacing: 0.04em; }
+/* ── TAB PAGES ── */
+.page { display: none; max-width: 480px; margin: 0 auto; padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom) + 100px); min-height: 100dvh; }
+.page.active { display: block; }
 
-/* Section */
-.section { padding: 16px 20px; border-bottom: 0.5px solid var(--border); }
-.section-label { font-family: var(--display); font-size: 9px; font-weight: 700; letter-spacing: 0.14em; color: var(--text3); text-transform: uppercase; margin-bottom: 10px; }
-
-/* API Key */
-.key-row { display: flex; gap: 8px; }
-.key-input { flex: 1; background: var(--bg3); border: 0.5px solid var(--border2); border-radius: 8px; padding: 10px 14px; font-family: monospace; font-size: 12px; color: var(--text); outline: none; transition: border-color 0.2s; }
-.key-input:focus { border-color: var(--accent); }
-.key-btn { background: transparent; border: 0.5px solid var(--border2); border-radius: 8px; padding: 10px 16px; font-family: var(--display); font-size: 11px; font-weight: 600; color: var(--text2); cursor: pointer; transition: all 0.2s; white-space: nowrap; }
-.key-btn:hover { border-color: var(--accent); color: var(--accent); }
-.key-saved { font-size: 11px; color: var(--up); margin-top: 6px; display: none; }
-
-/* Market grid */
-.market-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.market-card { background: var(--bg3); border: 0.5px solid var(--border); border-radius: 10px; padding: 12px 14px; transition: border-color 0.3s; position: relative; overflow: hidden; }
-.market-card::before { content: ''; position: absolute; inset: 0; opacity: 0; transition: opacity 0.3s; }
-.market-card.up-card::before { background: var(--up-dim); }
-.market-card.down-card::before { background: var(--down-dim); }
-.market-card:hover { border-color: var(--border2); }
-.card-sym { font-family: var(--display); font-size: 10px; font-weight: 700; letter-spacing: 0.08em; color: var(--text2); margin-bottom: 4px; position: relative; }
-.card-price { font-family: var(--display); font-size: 15px; font-weight: 700; color: var(--text); position: relative; }
-.card-chg { font-family: var(--display); font-size: 11px; font-weight: 600; margin-top: 3px; position: relative; }
-.up { color: var(--up); } .down { color: var(--down); }
-.card-loading { font-size: 11px; color: var(--text3); }
-
-/* Checkboxes */
-.check-group { display: flex; gap: 8px; flex-wrap: wrap; }
-.check-item { display: flex; align-items: center; gap: 6px; background: var(--bg3); border: 0.5px solid var(--border2); border-radius: 8px; padding: 8px 12px; cursor: pointer; transition: all 0.2s; user-select: none; }
-.check-item.active { border-color: var(--accent); background: var(--accent-dim); }
-.check-item input { display: none; }
-.check-box { width: 14px; height: 14px; border-radius: 3px; border: 1.5px solid var(--text3); transition: all 0.2s; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.check-item.active .check-box { background: var(--accent); border-color: var(--accent); }
-.check-box::after { content: ''; width: 5px; height: 8px; border: 2px solid #080808; border-top: none; border-left: none; transform: rotate(45deg) translateY(-1px); display: none; }
-.check-item.active .check-box::after { display: block; }
-.check-label { font-family: var(--display); font-size: 11px; font-weight: 600; color: var(--text2); letter-spacing: 0.04em; }
-.check-item.active .check-label { color: var(--accent); }
-
-/* Brief button */
-.brief-section { padding: 14px 20px; }
-.brief-btn { width: 100%; background: var(--accent); color: #080808; border: none; border-radius: 12px; padding: 16px; font-family: var(--display); font-size: 14px; font-weight: 800; letter-spacing: 0.06em; cursor: pointer; transition: all 0.2s; text-transform: uppercase; }
-.brief-btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
-.brief-btn:active { transform: scale(0.98); }
-.brief-btn:disabled { background: var(--bg4); color: var(--text3); border: 0.5px solid var(--border); transform: none; cursor: not-allowed; }
-
-/* Result */
-.result-section { padding: 20px; }
-.result-placeholder { text-align: center; padding: 40px 0; font-family: var(--display); font-size: 12px; color: var(--text3); line-height: 2.2; }
-.result-text { font-size: 14px; color: var(--text); line-height: 1.9; white-space: pre-wrap; word-break: break-word; }
-.loading-wrap { display: flex; flex-direction: column; align-items: center; padding: 48px 0; gap: 20px; }
-.loading-logo { font-family: var(--display); font-size: 13px; font-weight: 700; color: var(--text3); letter-spacing: 0.1em; }
-.loading-bar { width: 100%; height: 1.5px; background: var(--bg4); border-radius: 2px; overflow: hidden; }
-.loading-bar-fill { height: 100%; background: linear-gradient(90deg, transparent, var(--accent), transparent); width: 40%; animation: shimmer 1.5s ease-in-out infinite; }
-@keyframes shimmer { 0% { transform: translateX(-200%); } 100% { transform: translateX(400%); } }
-.loading-msg { font-family: var(--display); font-size: 11px; font-weight: 600; color: var(--text2); letter-spacing: 0.06em; }
-
-/* Bottom fixed area */
-.bottom-fixed {
+/* ── BOTTOM NAV ── */
+.bottom-nav {
   position: fixed; bottom: 0; left: 0; right: 0;
   max-width: 480px; margin: 0 auto;
-  background: rgba(8,8,8,0.97);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-top: 0.5px solid var(--border2);
+  background: rgba(255,255,255,0.97);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-top: 0.5px solid var(--border);
+  display: flex; z-index: 200;
   padding-bottom: env(safe-area-inset-bottom);
+  box-shadow: 0 -4px 20px rgba(15,31,61,0.06);
 }
+.nav-btn {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 10px 0 8px;
+  background: none; border: none; cursor: pointer;
+  gap: 3px; transition: all 0.2s;
+}
+.nav-icon { font-size: 18px; }
+.nav-label {
+  font-family: var(--display); font-size: 9px; font-weight: 700;
+  letter-spacing: 0.08em; color: var(--text3); transition: color 0.2s;
+}
+.nav-btn.active .nav-label { color: var(--navy); }
+.nav-indicator {
+  width: 4px; height: 4px; border-radius: 50%;
+  background: transparent; transition: background 0.2s;
+  margin-top: 2px;
+}
+.nav-btn.active .nav-indicator { background: var(--navy); }
 
-/* Quick buttons */
+/* ── HEADER ── */
+.page-header {
+  background: var(--bg2); padding: 52px 20px 16px;
+  border-bottom: 0.5px solid var(--border);
+  position: sticky; top: 0; z-index: 10;
+  box-shadow: 0 2px 12px rgba(15,31,61,0.04);
+}
+.header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; }
+.logo { font-family: var(--display); font-size: 26px; font-weight: 800; color: var(--navy); letter-spacing: -0.5px; }
+.logo em { color: var(--navy3); font-style: normal; }
+.live-pill {
+  display: flex; align-items: center; gap: 5px;
+  background: var(--accent-light); border: 0.5px solid var(--border2);
+  border-radius: 20px; padding: 4px 10px;
+  font-family: var(--display); font-size: 9px; font-weight: 700;
+  color: var(--navy2); letter-spacing: 0.08em;
+}
+.live-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--up); animation: blink 2s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.header-sub { font-size: 11px; color: var(--text2); letter-spacing: 0.02em; }
+.page-title { font-family: var(--display); font-size: 20px; font-weight: 800; color: var(--navy); }
+
+/* ── SECTIONS ── */
+.section { padding: 16px 20px; border-bottom: 0.5px solid var(--border); background: var(--bg2); }
+.section-spacer { height: 8px; background: var(--bg); }
+.section-label { font-family: var(--display); font-size: 9px; font-weight: 700; letter-spacing: 0.12em; color: var(--text3); text-transform: uppercase; margin-bottom: 10px; }
+
+/* ── MARKET CARDS ── */
+.market-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.market-card { background: var(--bg2); border: 0.5px solid var(--border); border-radius: 12px; padding: 12px 14px; box-shadow: 0 1px 4px rgba(15,31,61,0.05); }
+.market-card.up-card { border-color: rgba(10,123,75,0.25); background: var(--up-bg); }
+.market-card.down-card { border-color: rgba(192,57,43,0.25); background: var(--down-bg); }
+.card-sym { font-family: var(--display); font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: var(--text2); margin-bottom: 4px; }
+.card-price { font-family: var(--display); font-size: 15px; font-weight: 700; color: var(--text); }
+.card-chg { font-family: var(--display); font-size: 11px; font-weight: 700; margin-top: 3px; }
+.up { color: var(--up); } .down { color: var(--down); }
+.card-placeholder { font-size: 10px; color: var(--text3); margin-top: 4px; }
+
+/* ── PERIOD TABS ── */
+.period-tabs { display: flex; gap: 6px; }
+.period-tab {
+  flex: 1; text-align: center; padding: 8px 0;
+  font-family: var(--display); font-size: 11px; font-weight: 700;
+  color: var(--text3); background: var(--bg); border: 0.5px solid var(--border);
+  border-radius: 8px; cursor: pointer; transition: all 0.2s;
+}
+.period-tab.active { color: var(--navy); background: var(--bg2); border-color: var(--border2); box-shadow: 0 2px 8px rgba(15,31,61,0.08); }
+
+/* ── CHECK ITEMS ── */
+.check-group { display: flex; flex-direction: column; gap: 6px; }
+.check-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; border-radius: 10px;
+  background: var(--bg); border: 0.5px solid var(--border);
+  cursor: pointer; transition: all 0.2s; user-select: none;
+}
+.check-item.active { background: var(--accent-light); border-color: var(--border2); }
+.check-item input { display: none; }
+.check-box {
+  width: 18px; height: 18px; border-radius: 5px;
+  border: 1.5px solid var(--text3); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+}
+.check-item.active .check-box { background: var(--navy); border-color: var(--navy); }
+.check-box::after { content: ''; width: 5px; height: 9px; border: 2px solid #fff; border-top: none; border-left: none; transform: rotate(45deg) translateY(-1px); display: none; }
+.check-item.active .check-box::after { display: block; }
+.check-info { flex: 1; }
+.check-label { font-family: var(--display); font-size: 12px; font-weight: 700; color: var(--text); }
+.check-desc { font-size: 10px; color: var(--text2); margin-top: 1px; }
+.check-item.active .check-label { color: var(--navy); }
+
+/* ── BRIEF BTN ── */
+.brief-section { padding: 14px 20px; background: var(--bg2); }
+.brief-btn {
+  width: 100%; background: var(--navy); color: #fff; border: none;
+  border-radius: 12px; padding: 16px; font-family: var(--display);
+  font-size: 14px; font-weight: 800; letter-spacing: 0.08em;
+  cursor: pointer; transition: all 0.2s; text-transform: uppercase;
+  box-shadow: 0 4px 16px rgba(15,31,61,0.2);
+}
+.brief-btn:hover { background: var(--navy2); transform: translateY(-1px); }
+.brief-btn:active { transform: scale(0.99); }
+.brief-btn:disabled { background: var(--bg3); color: var(--text3); box-shadow: none; transform: none; cursor: not-allowed; }
+
+/* ── RESULT ── */
+.result-wrap { padding: 20px; background: var(--bg2); margin-top: 8px; }
+.result-placeholder { text-align: center; padding: 48px 20px; font-size: 13px; color: var(--text3); line-height: 2; }
+.result-placeholder .icon { font-size: 32px; margin-bottom: 12px; display: block; }
+.result-text { font-size: 14px; color: var(--text); line-height: 1.9; white-space: pre-wrap; word-break: break-word; }
+.loading-wrap { display: flex; flex-direction: column; align-items: center; padding: 48px 20px; gap: 16px; }
+.loading-logo { font-family: var(--display); font-size: 18px; font-weight: 800; color: var(--navy); }
+.loading-bar { width: 100%; height: 2px; background: var(--bg3); border-radius: 2px; overflow: hidden; }
+.loading-bar-fill { height: 100%; background: linear-gradient(90deg, transparent, var(--navy2), transparent); animation: sweep 1.5s ease-in-out infinite; }
+@keyframes sweep { 0%{transform:translateX(-200%)} 100%{transform:translateX(400%)} }
+.loading-msg { font-size: 12px; color: var(--text2); letter-spacing: 0.04em; }
+
+/* ── QUICK + ASK (브리핑 탭 하단) ── */
+.brief-bottom {
+  position: fixed; bottom: calc(var(--nav-h) + env(safe-area-inset-bottom)); left: 0; right: 0;
+  max-width: 480px; margin: 0 auto;
+  background: rgba(247,245,240,0.97);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border-top: 0.5px solid var(--border);
+  box-shadow: 0 -4px 20px rgba(15,31,61,0.04);
+  z-index: 100;
+}
 .quick-btns { display: flex; gap: 6px; padding: 10px 14px 0; overflow-x: auto; scrollbar-width: none; }
 .quick-btns::-webkit-scrollbar { display: none; }
-.quick-btn { flex-shrink: 0; background: var(--bg3); border: 0.5px solid var(--border2); border-radius: 20px; padding: 6px 12px; font-size: 11px; font-family: var(--display); font-weight: 600; color: var(--text2); cursor: pointer; transition: all 0.2s; white-space: nowrap; }
-.quick-btn:hover { border-color: var(--accent); color: var(--accent); }
+.quick-btn {
+  flex-shrink: 0; background: var(--bg2); border: 0.5px solid var(--border2);
+  border-radius: 20px; padding: 6px 14px;
+  font-size: 11px; font-family: var(--display); font-weight: 700;
+  color: var(--text2); cursor: pointer; transition: all 0.2s; white-space: nowrap;
+}
+.quick-btn:hover { border-color: var(--navy); color: var(--navy); }
 .quick-btn:active { transform: scale(0.96); }
-
-/* Ask input */
 .ask-row { display: flex; gap: 8px; padding: 8px 14px 10px; }
-.ask-input { flex: 1; background: var(--bg3); border: 0.5px solid var(--border2); border-radius: 10px; padding: 11px 14px; font-family: var(--sans); font-size: 14px; color: var(--text); outline: none; transition: border-color 0.2s; }
-.ask-input:focus { border-color: var(--border3); }
+.ask-input {
+  flex: 1; background: var(--bg2); border: 0.5px solid var(--border2);
+  border-radius: 10px; padding: 11px 14px;
+  font-family: var(--sans); font-size: 14px; color: var(--text); outline: none;
+}
 .ask-input::placeholder { color: var(--text3); }
-.ask-send { background: var(--accent); border: none; border-radius: 10px; padding: 11px 16px; font-family: var(--display); font-size: 12px; font-weight: 700; color: #080808; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
-.ask-send:hover { filter: brightness(1.08); }
-.timestamp { font-size: 10px; color: var(--text3); text-align: right; padding: 0 14px 6px; font-family: var(--display); letter-spacing: 0.04em; }
+.ask-send {
+  background: var(--navy); border: none; border-radius: 10px;
+  padding: 11px 18px; font-family: var(--display); font-size: 12px;
+  font-weight: 700; color: #fff; cursor: pointer;
+}
+.ask-send:hover { background: var(--navy2); }
+.timestamp { font-size: 10px; color: var(--text3); text-align: right; padding: 0 14px 6px; }
 
-/* Divider */
-.divider { height: 0.5px; background: var(--border); margin: 0 20px; }
+/* ── SETTINGS ── */
+.settings-group { display: flex; flex-direction: column; gap: 6px; }
+.settings-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px; background: var(--bg2);
+  border: 0.5px solid var(--border); border-radius: 10px;
+}
+.settings-row-label { font-size: 13px; font-weight: 500; color: var(--text); }
+.settings-row-sub { font-size: 11px; color: var(--text2); margin-top: 2px; }
+.settings-input {
+  background: var(--bg); border: 0.5px solid var(--border2);
+  border-radius: 6px; padding: 6px 10px;
+  font-size: 12px; color: var(--text); outline: none; width: 120px; text-align: right;
+}
+.tag-group { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag {
+  display: flex; align-items: center; gap: 4px;
+  background: var(--accent-light); border: 0.5px solid var(--border2);
+  border-radius: 20px; padding: 5px 12px;
+  font-family: var(--display); font-size: 11px; font-weight: 700; color: var(--navy2);
+}
+.tag-del {
+  background: none; border: none; cursor: pointer;
+  color: var(--text3); font-size: 14px; line-height: 1;
+  padding: 0 0 0 4px; transition: color 0.2s;
+}
+.tag-del:hover { color: var(--down); }
+.tag-add-row { display: flex; gap: 8px; margin-top: 8px; }
+.tag-add-input {
+  flex: 1; background: var(--bg2); border: 0.5px solid var(--border2);
+  border-radius: 8px; padding: 8px 12px;
+  font-size: 12px; color: var(--text); outline: none;
+  text-transform: uppercase;
+}
+.tag-add-btn {
+  background: var(--navy); border: none; border-radius: 8px;
+  padding: 8px 16px; font-family: var(--display); font-size: 11px;
+  font-weight: 700; color: #fff; cursor: pointer;
+}
+.save-btn {
+  width: 100%; background: var(--navy); color: #fff; border: none;
+  border-radius: 12px; padding: 14px; font-family: var(--display);
+  font-size: 13px; font-weight: 800; letter-spacing: 0.06em;
+  cursor: pointer; transition: all 0.2s; text-transform: uppercase;
+  box-shadow: 0 4px 16px rgba(15,31,61,0.2); margin-top: 4px;
+}
+.save-btn:hover { background: var(--navy2); }
+.save-notice { font-size: 11px; color: var(--up); text-align: center; margin-top: 8px; display: none; }
 </style>
 </head>
 <body>
-<div class="app">
 
-  <div class="header">
+<!-- ════════════════════════════════
+     PAGE 1: 브리핑
+════════════════════════════════ -->
+<div class="page active" id="page-brief">
+
+  <div class="page-header">
     <div class="header-row">
-      <div class="logo">BRIEF<em>.</em>AI</div>
-      <div class="header-right">
-        <div class="live-badge">LIVE</div>
-        <div class="status-dot" id="statusDot"></div>
-      </div>
+      <div class="logo">LE<em>N</em>Z</div>
+      <div class="live-pill"><div class="live-dot"></div>LIVE</div>
     </div>
-    <div class="header-sub">미중 동향 · 코인 · 미국 증시 실시간 분석</div>
+    <div class="header-sub">글로벌 시장 실시간 분석 에이전트</div>
   </div>
 
-  <div class="section">
-    <div class="section-label">Gemini API Key</div>
-    <div class="key-row">
-      <input type="password" class="key-input" id="apiKey" placeholder="AIzaSy..." />
-      <button class="key-btn" onclick="saveKey()">저장</button>
-    </div>
-    <div class="key-saved" id="keySaved">✓ 저장됨</div>
-  </div>
+  <div class="section-spacer"></div>
 
   <div class="section">
     <div class="section-label">코인 시장</div>
     <div class="market-grid" id="coinGrid">
-      <div class="market-card"><div class="card-sym">BTC</div><div class="card-price card-loading">—</div></div>
-      <div class="market-card"><div class="card-sym">ETH</div><div class="card-price card-loading">—</div></div>
-      <div class="market-card"><div class="card-sym">XRP</div><div class="card-price card-loading">—</div></div>
-      <div class="market-card"><div class="card-sym">SOL</div><div class="card-price card-loading">—</div></div>
+      <div class="market-card"><div class="card-sym">BTC</div><div class="card-price">—</div></div>
+      <div class="market-card"><div class="card-sym">ETH</div><div class="card-price">—</div></div>
+      <div class="market-card"><div class="card-sym">XRP</div><div class="card-price">—</div></div>
+      <div class="market-card"><div class="card-sym">SOL</div><div class="card-price">—</div></div>
     </div>
   </div>
 
   <div class="section">
     <div class="section-label">미국 증시</div>
     <div class="market-grid" id="stockGrid">
-      <div class="market-card"><div class="card-sym">TSLA</div><div class="card-price card-loading">—</div></div>
-      <div class="market-card"><div class="card-sym">NVDA</div><div class="card-price card-loading">—</div></div>
-      <div class="market-card"><div class="card-sym">SPY</div><div class="card-price card-loading">—</div></div>
-      <div class="market-card"><div class="card-sym">QQQ</div><div class="card-price card-loading">—</div></div>
+      <div class="market-card"><div class="card-sym">TSLA</div><div class="card-price">—</div><div class="card-placeholder">브리핑 시 업데이트</div></div>
+      <div class="market-card"><div class="card-sym">NVDA</div><div class="card-price">—</div><div class="card-placeholder">브리핑 시 업데이트</div></div>
+      <div class="market-card"><div class="card-sym">SPY</div><div class="card-price">—</div><div class="card-placeholder">브리핑 시 업데이트</div></div>
+      <div class="market-card"><div class="card-sym">QQQ</div><div class="card-price">—</div><div class="card-placeholder">브리핑 시 업데이트</div></div>
+    </div>
+  </div>
+
+  <div class="section-spacer"></div>
+
+  <div class="section">
+    <div class="section-label">뉴스 기간</div>
+    <div class="period-tabs">
+      <div class="period-tab active" onclick="setPeriod('today',this)">당일</div>
+      <div class="period-tab" onclick="setPeriod('week',this)">주간</div>
+      <div class="period-tab" onclick="setPeriod('month',this)">월간</div>
     </div>
   </div>
 
   <div class="section">
-    <div class="section-label">브리핑 항목 선택</div>
+    <div class="section-label">브리핑 항목</div>
     <div class="check-group">
-      <label class="check-item active" id="chk-market">
-        <input type="checkbox" checked onchange="toggleCheck(this,'chk-market')">
+      <label class="check-item active" id="chk-global">
+        <input type="checkbox" checked onchange="toggleCheck(this,'chk-global')">
         <div class="check-box"></div>
-        <span class="check-label">미중 동향</span>
+        <div class="check-info">
+          <div class="check-label">전세계 동향</div>
+          <div class="check-desc">미중 관계 · 지정학 · 매크로 이슈</div>
+        </div>
+      </label>
+      <label class="check-item active" id="chk-us">
+        <input type="checkbox" checked onchange="toggleCheck(this,'chk-us')">
+        <div class="check-box"></div>
+        <div class="check-info">
+          <div class="check-label">미국 증시</div>
+          <div class="check-desc">TSLA · NVDA · SPY · QQQ</div>
+        </div>
       </label>
       <label class="check-item active" id="chk-coin">
         <input type="checkbox" checked onchange="toggleCheck(this,'chk-coin')">
         <div class="check-box"></div>
-        <span class="check-label">코인 시장</span>
+        <div class="check-info">
+          <div class="check-label">코인 시장</div>
+          <div class="check-desc">BTC · ETH · XRP · SOL</div>
+        </div>
       </label>
-      <label class="check-item active" id="chk-stock">
-        <input type="checkbox" checked onchange="toggleCheck(this,'chk-stock')">
+      <label class="check-item active" id="chk-kr">
+        <input type="checkbox" checked onchange="toggleCheck(this,'chk-kr')">
         <div class="check-box"></div>
-        <span class="check-label">미국 증시</span>
+        <div class="check-info">
+          <div class="check-label">한국 주식 시장</div>
+          <div class="check-desc">코스피 · 코스닥 · 주요 종목</div>
+        </div>
       </label>
     </div>
   </div>
+
+  <div class="section-spacer"></div>
 
   <div class="brief-section">
     <button class="brief-btn" id="briefBtn" onclick="runBriefing()">
@@ -205,22 +346,125 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); min-
     </button>
   </div>
 
-  <div class="result-section" id="resultSection">
-    <div class="result-placeholder">API 키를 입력하고<br>브리핑을 시작하세요</div>
+  <div class="result-wrap" id="resultSection">
+    <div class="result-placeholder">
+      <span class="icon">📊</span>
+      항목을 선택하고<br>브리핑을 시작하세요
+    </div>
   </div>
 
 </div>
 
-<div class="bottom-fixed">
+<!-- ════════════════════════════════
+     PAGE 2: 설정
+════════════════════════════════ -->
+<div class="page" id="page-settings">
+
+  <div class="page-header">
+    <div class="header-row">
+      <div class="page-title">설정</div>
+    </div>
+    <div class="header-sub">API 키 · 표시 종목 · 기본 설정</div>
+  </div>
+
+  <div class="section-spacer"></div>
+
+  <!-- API Key -->
+  <div class="section">
+    <div class="section-label">Gemini API Key</div>
+    <div class="key-wrap" style="background:var(--bg);border-radius:10px;padding:12px;">
+      <div class="key-row">
+        <input type="password" class="key-input" id="apiKey" placeholder="AIzaSy..." />
+        <button class="key-btn" onclick="saveKey()">저장</button>
+      </div>
+      <div class="key-saved" id="keySaved">✓ 저장됨</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">Finnhub API Key <span style="font-size:9px;color:var(--text3);font-family:var(--sans);font-weight:400;">(미국 주식 실시간)</span></div>
+    <div class="key-wrap" style="background:var(--bg);border-radius:10px;padding:12px;">
+      <div class="key-row">
+        <input type="password" class="key-input" id="finnhubKey" placeholder="ct..." />
+        <button class="key-btn" onclick="saveFinnhubKey()">저장</button>
+      </div>
+      <div class="key-saved" id="finnhubSaved">✓ 저장됨</div>
+    </div>
+  </div>
+
+  <div class="section-spacer"></div>
+
+  <!-- 기본 기간 -->
+  <div class="section">
+    <div class="section-label">기본 뉴스 기간</div>
+    <div class="period-tabs">
+      <div class="period-tab active" id="def-today" onclick="setDefaultPeriod('today',this)">당일</div>
+      <div class="period-tab" id="def-week" onclick="setDefaultPeriod('week',this)">주간</div>
+      <div class="period-tab" id="def-month" onclick="setDefaultPeriod('month',this)">월간</div>
+    </div>
+  </div>
+
+  <div class="section-spacer"></div>
+
+  <!-- 코인 종목 설정 -->
+  <div class="section">
+    <div class="section-label">표시 코인 종목</div>
+    <div class="tag-group" id="coinTags"></div>
+    <div class="tag-add-row">
+      <input type="text" class="tag-add-input" id="coinAddInput" placeholder="비트코인, BTC, DOGE..." maxlength="20" onkeydown="if(event.key==='Enter')addCoinTag()" />
+      <button class="tag-add-btn" onclick="addCoinTag()">추가</button>
+    </div>
+  </div>
+
+  <!-- 주식 종목 설정 -->
+  <div class="section">
+    <div class="section-label">표시 주식 종목</div>
+    <div class="tag-group" id="stockTags"></div>
+    <div class="tag-add-row">
+      <input type="text" class="tag-add-input" id="stockAddInput" placeholder="종목 추가 (예: AAPL, MSFT)" maxlength="10" onkeydown="if(event.key==='Enter')addStockTag()" />
+      <button class="tag-add-btn" onclick="addStockTag()">추가</button>
+    </div>
+  </div>
+
+  <div class="section-spacer"></div>
+
+  <!-- 저장 -->
+  <div class="section">
+    <button class="save-btn" onclick="saveSettings()">설정 저장</button>
+    <div class="save-notice" id="saveNotice">✓ 설정이 저장되었습니다</div>
+  </div>
+
+  <div class="section-spacer"></div>
+
+</div>
+
+<!-- ════════════════════════════════
+     BOTTOM NAV
+════════════════════════════════ -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" id="nav-brief" onclick="switchPage('brief')">
+    <span class="nav-icon">📊</span>
+    <span class="nav-label">브리핑</span>
+    <div class="nav-indicator"></div>
+  </button>
+  <button class="nav-btn" id="nav-settings" onclick="switchPage('settings')">
+    <span class="nav-icon">⚙️</span>
+    <span class="nav-label">설정</span>
+    <div class="nav-indicator"></div>
+  </button>
+</nav>
+
+<!-- ════════════════════════════════
+     BRIEF BOTTOM (질문창)
+════════════════════════════════ -->
+<div class="brief-bottom" id="briefBottom">
   <div class="quick-btns">
-    <button class="quick-btn" onclick="quickAsk('비트코인에 대해 상세하게 분석해줘')">BTC 상세분석</button>
-    <button class="quick-btn" onclick="quickAsk('코인 시장 상승세가 유지될까? 근거와 함께 분석해줘')">상승세 유지될까?</button>
-    <button class="quick-btn" onclick="quickAsk('오늘 시장 전반적인 분위기와 심리는 어때?')">시장 분위기</button>
-    <button class="quick-btn" onclick="quickAsk('달러 원화 환율 최신 동향 알려줘')">달러/원 환율</button>
+    <button class="quick-btn" onclick="quickAsk('현재 글로벌 시장 전반적인 투자 심리와 공포탐욕 지수를 20년차 애널리스트 관점에서 분석해줘')">시장 심리</button>
+    <button class="quick-btn" onclick="quickAsk('현재 코인 및 미국 증시의 상승세가 유지될 수 있는지 데이터 기반으로 근거와 함께 분석해줘')">상승세 유지될까?</button>
   </div>
   <div class="ask-row">
     <input type="text" class="ask-input" id="askInput"
-      placeholder="궁금한 것을 질문하세요..."
+      placeholder="종목명, 시장 이슈 등 질문하세요..."
       onkeydown="if(event.key==='Enter')askQuestion()" />
     <button class="ask-send" onclick="askQuestion()">전송</button>
   </div>
@@ -229,12 +473,81 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); min-
 
 <script>
 const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
-const COINS = { bitcoin:'BTC', ethereum:'ETH', ripple:'XRP', solana:'SOL' };
-const STOCKS = ['TSLA','NVDA','SPY','QQQ'];
-let coinPriceText = '';
-let stockPriceText = '';
-let refreshTimer = null;
+const DEFAULT_COINS  = ['BTC','ETH','XRP','SOL'];
+const DEFAULT_STOCKS = ['TSLA','NVDA','SPY','QQQ'];
 
+const COIN_FINNHUB = {
+  BTC:'BINANCE:BTCUSDT', ETH:'BINANCE:ETHUSDT', XRP:'BINANCE:XRPUSDT',
+  SOL:'BINANCE:SOLUSDT', DOGE:'BINANCE:DOGEUSDT', ADA:'BINANCE:ADAUSDT',
+  AVAX:'BINANCE:AVAXUSDT', DOT:'BINANCE:DOTUSDT', LINK:'BINANCE:LINKUSDT',
+  MATIC:'BINANCE:MATICUSDT', SHIB:'BINANCE:SHIBUSDT', UNI:'BINANCE:UNIUSDT',
+  ATOM:'BINANCE:ATOMUSDT', LTC:'BINANCE:LTCUSDT', BCH:'BINANCE:BCHUSDT',
+  NEAR:'BINANCE:NEARUSDT', APT:'BINANCE:APTUSDT', ARB:'BINANCE:ARBUSDT',
+  OP:'BINANCE:OPUSDT', TON:'BINANCE:TONUSDT'
+};
+
+const COIN_KR = {
+  '비트코인':'BTC', '이더리움':'ETH', '이더':'ETH', '리플':'XRP',
+  '솔라나':'SOL', '도지':'DOGE', '도지코인':'DOGE', '에이다':'ADA',
+  '카르다노':'ADA', '아발란체':'AVAX', '폴카닷':'DOT', '체인링크':'LINK',
+  '시바이누':'SHIB', '시바':'SHIB', '유니스왑':'UNI', '코스모스':'ATOM',
+  '라이트코인':'LTC', '비트코인캐시':'BCH', '니어':'NEAR', '앱토스':'APT',
+  '아비트럼':'ARB', '옵티미즘':'OP', '톤':'TON'
+};
+
+let currentPeriod = 'today';
+let userCoins  = [...DEFAULT_COINS];
+let userStocks = [...DEFAULT_STOCKS];
+let coinPriceText  = '';
+let stockPriceText = '';
+let refreshTimer   = null;
+
+/* ── PAGE SWITCH ── */
+function switchPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.getElementById('nav-' + name).classList.add('active');
+  document.getElementById('briefBottom').style.display = name === 'brief' ? 'block' : 'none';
+}
+
+/* ── INIT ── */
+window.addEventListener('load', () => {
+  const savedKey      = localStorage.getItem('gemini_key');
+  const savedFinnhub  = localStorage.getItem('finnhub_key');
+  const savedCoins    = localStorage.getItem('lenz_coins');
+  const savedStocks   = localStorage.getItem('lenz_stocks');
+  const savedPeriod   = localStorage.getItem('lenz_period');
+
+  if (savedKey)     document.getElementById('apiKey').value     = savedKey;
+  if (savedFinnhub) document.getElementById('finnhubKey').value = savedFinnhub;
+  if (savedCoins)   userCoins  = JSON.parse(savedCoins);
+  if (savedStocks)  userStocks = JSON.parse(savedStocks);
+  if (savedPeriod)  currentPeriod = savedPeriod;
+
+  renderCoinTags();
+  renderStockTags();
+  syncDefaultPeriodUI();
+  loadCoins();
+  loadStocks();
+  startAutoRefresh();
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+});
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) stopAutoRefresh();
+  else { loadCoins(); loadStocks(); startAutoRefresh(); }
+});
+
+function startAutoRefresh() {
+  stopAutoRefresh();
+  refreshTimer = setInterval(() => { loadCoins(); loadStocks(); }, 30000);
+}
+function stopAutoRefresh() {
+  if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null; }
+}
+
+/* ── KEY ── */
 function saveKey() {
   const k = document.getElementById('apiKey').value.trim();
   if (!k) return;
@@ -243,164 +556,268 @@ function saveKey() {
   el.style.display = 'block';
   setTimeout(() => el.style.display = 'none', 2000);
 }
-
 function getKey() {
   return document.getElementById('apiKey').value.trim() || localStorage.getItem('gemini_key') || '';
 }
+function saveFinnhubKey() {
+  const k = document.getElementById('finnhubKey').value.trim();
+  if (!k) return;
+  localStorage.setItem('finnhub_key', k);
+  const el = document.getElementById('finnhubSaved');
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 2000);
+  loadStocks();
+}
+function getFinnhubKey() {
+  return document.getElementById('finnhubKey')?.value.trim() || localStorage.getItem('finnhub_key') || '';
+}
 
+/* ── PERIOD ── */
+function setPeriod(p, el) {
+  currentPeriod = p;
+  document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+function setDefaultPeriod(p, el) {
+  currentPeriod = p;
+  localStorage.setItem('lenz_period', p);
+  document.querySelectorAll('#def-today,#def-week,#def-month').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+function syncDefaultPeriodUI() {
+  document.querySelectorAll('#def-today,#def-week,#def-month').forEach(t => t.classList.remove('active'));
+  document.getElementById('def-' + currentPeriod)?.classList.add('active');
+}
+function getPeriodText() {
+  if (currentPeriod === 'week')  return '최근 7일간';
+  if (currentPeriod === 'month') return '최근 30일간';
+  return '오늘 하루';
+}
+
+/* ── CHECK ── */
 function toggleCheck(el, id) {
   document.getElementById(id).classList.toggle('active', el.checked);
 }
 
-window.addEventListener('load', () => {
-  const saved = localStorage.getItem('gemini_key');
-  if (saved) document.getElementById('apiKey').value = saved;
-  loadCoins();
-  document.getElementById('stockGrid').innerHTML = STOCKS.map(s =>
-    `<div class="market-card"><div class="card-sym">${s}</div><div class="card-price card-loading" style="font-size:11px;">브리핑 시 업데이트</div></div>`
+/* ── TAG RENDER ── */
+function renderCoinTags() {
+  const el = document.getElementById('coinTags');
+  el.innerHTML = userCoins.map(c => `
+    <div class="tag">${c}
+      <button class="tag-del" onclick="removeCoin('${c}')">×</button>
+    </div>`).join('');
+}
+function renderStockTags() {
+  const el = document.getElementById('stockTags');
+  el.innerHTML = userStocks.map(s => `
+    <div class="tag">${s}
+      <button class="tag-del" onclick="removeStock('${s}')">×</button>
+    </div>`).join('');
+}
+function resolveCoinInput(raw) {
+  const trimmed = raw.trim();
+  const upper = trimmed.toUpperCase();
+  if (COIN_KR[trimmed]) return COIN_KR[trimmed];
+  if (COIN_IDS[upper])  return upper;
+  if (upper.length >= 2 && upper.length <= 10) return upper;
+  return null;
+}
+
+function addCoinTag() {
+  const input = document.getElementById('coinAddInput');
+  const raw = input.value.trim();
+  if (!raw) return;
+  const sym = resolveCoinInput(raw);
+  if (!sym) { alert('인식할 수 없는 코인입니다.'); input.value = ''; return; }
+  if (userCoins.includes(sym)) { input.value = ''; return; }
+  userCoins.push(sym);
+  renderCoinTags();
+  updateCoinGrid();
+  input.value = '';
+}
+function removeCoin(c) {
+  userCoins = userCoins.filter(x => x !== c);
+  renderCoinTags();
+  updateCoinGrid();
+}
+
+function addStockTag() {
+  const input = document.getElementById('stockAddInput');
+  const val = input.value.trim().toUpperCase();
+  if (!val || val.length < 1) { input.value = ''; return; }
+  if (userStocks.includes(val)) { input.value = ''; return; }
+  userStocks.push(val);
+  renderStockTags();
+  updateStockGrid();
+  input.value = '';
+}
+function removeStock(s) {
+  userStocks = userStocks.filter(x => x !== s);
+  renderStockTags();
+  updateStockGrid();
+}
+
+function updateCoinGrid() {
+  const grid = document.getElementById('coinGrid');
+  grid.innerHTML = userCoins.map(c =>
+    `<div class="market-card"><div class="card-sym">${c}</div><div class="card-price">—</div></div>`
   ).join('');
-  startAutoRefresh();
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
-});
-
-document.addEventListener('visibilitychange', () => {
-  if (document.hidden) stopAutoRefresh();
-  else startAutoRefresh();
-});
-
-function startAutoRefresh() {
-  stopAutoRefresh();
-  refreshTimer = setInterval(loadAllPrices, 30000);
+  loadCoins();
 }
 
-function stopAutoRefresh() {
-  if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null; }
+function updateStockGrid() {
+  const grid = document.getElementById('stockGrid');
+  grid.innerHTML = userStocks.map(s =>
+    `<div class="market-card"><div class="card-sym">${s}</div><div class="card-price">—</div><div class="card-placeholder">브리핑 시 업데이트</div></div>`
+  ).join('');
+}
+function saveSettings() {
+  const key        = document.getElementById('apiKey').value.trim();
+  const finnhubKey = document.getElementById('finnhubKey').value.trim();
+  if (key)        localStorage.setItem('gemini_key',  key);
+  if (finnhubKey) localStorage.setItem('finnhub_key', finnhubKey);
+  localStorage.setItem('lenz_coins',  JSON.stringify(userCoins));
+  localStorage.setItem('lenz_stocks', JSON.stringify(userStocks));
+  localStorage.setItem('lenz_period', currentPeriod);
+  const notice = document.getElementById('saveNotice');
+  notice.style.display = 'block';
+  setTimeout(() => notice.style.display = 'none', 2000);
+  updateCoinGrid();
+  updateStockGrid();
+  loadStocks();
 }
 
-async function loadAllPrices() {
-  await Promise.all([loadCoins(), loadStocks()]);
-  document.getElementById('statusDot').classList.add('active');
-  document.getElementById('timestamp').textContent =
-    '가격 업데이트: ' + new Date().toLocaleTimeString('ko-KR');
-}
-
+/* ── LOAD COINS (Finnhub) ── */
 async function loadCoins() {
-  try {
-    const ids = Object.keys(COINS).join(',');
-    const r = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`);
-    const data = await r.json();
-    const grid = document.getElementById('coinGrid');
-    grid.innerHTML = '';
-    const lines = [];
-    for (const [id, sym] of Object.entries(COINS)) {
-      if (!data[id]) continue;
-      const price = data[id].usd;
-      const chg = data[id].usd_24h_change;
-      const isUp = chg >= 0;
-      const fmt = price >= 1000
-        ? '$' + price.toLocaleString('en-US', {maximumFractionDigits: 0})
-        : '$' + price.toLocaleString('en-US', {maximumFractionDigits: 4});
-      grid.innerHTML += `<div class="market-card ${isUp?'up-card':'down-card'}">
-        <div class="card-sym">${sym}</div>
-        <div class="card-price">${fmt}</div>
-        <div class="card-chg ${isUp?'up':'down'}">${isUp?'+':''}${chg.toFixed(2)}%</div>
-      </div>`;
-      lines.push(`${sym}: ${fmt} (${isUp?'+':''}${chg.toFixed(2)}%)`);
-    }
-    coinPriceText = lines.join(', ');
-  } catch(e) {}
-}
+  const key  = getFinnhubKey();
+  const grid = document.getElementById('coinGrid');
 
-async function loadStocks() {
-  const key = getKey();
   if (!key) {
-    document.getElementById('stockGrid').innerHTML = STOCKS.map(s =>
-      `<div class="market-card"><div class="card-sym">${s}</div><div class="card-price card-loading">키 필요</div></div>`
+    grid.innerHTML = userCoins.map(c =>
+      `<div class="market-card"><div class="card-sym">${c}</div><div class="card-price">—</div><div class="card-placeholder">설정에서 Finnhub 키 입력</div></div>`
     ).join('');
     return;
   }
-  try {
-    const prompt = `현재 미국 주식 시장의 실시간 주가를 검색해서 아래 형식으로만 답해주세요. 다른 말은 절대 하지 마세요.
-TSLA:[현재가]:[등락률]
-NVDA:[현재가]:[등락률]
-SPY:[현재가]:[등락률]
-QQQ:[현재가]:[등락률]
-예시: TSLA:172.50:+2.31
-숫자만, 달러 기호 없이, 등락률은 +/-포함해서 소수점 2자리.`;
 
-    const r = await fetch(`${GEMINI_URL}?key=${key}`, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        tools: [{ googleSearch: {} }],
-        generationConfig: { temperature: 0, maxOutputTokens: 100 }
-      })
-    });
-    if (!r.ok) throw new Error();
-    const data = await r.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    const grid = document.getElementById('stockGrid');
-    grid.innerHTML = '';
-    const lines = [];
-    for (const line of text.trim().split('\n')) {
-      const parts = line.trim().split(':');
-      if (parts.length < 3) continue;
-      const sym = parts[0].trim();
-      const price = parseFloat(parts[1]);
-      const chgStr = parts[2].trim();
-      const chg = parseFloat(chgStr);
-      if (!sym || isNaN(price) || isNaN(chg)) continue;
-      const isUp = chg >= 0;
-      const fmt = '$' + price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-      grid.innerHTML += `<div class="market-card ${isUp?'up-card':'down-card'}">
-        <div class="card-sym">${sym}</div>
-        <div class="card-price">${fmt}</div>
-        <div class="card-chg ${isUp?'up':'down'}">${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%</div>
-      </div>`;
+  const lines = [];
+  const results = [];
+
+  for (const sym of userCoins) {
+    const finnhubSym = COIN_FINNHUB[sym];
+    if (!finnhubSym) continue;
+    try {
+      const r = await fetch(`https://finnhub.io/api/v1/quote?symbol=${finnhubSym}&token=${key}`);
+      const data = await r.json();
+      if (!data.c || data.c === 0) continue;
+      const price = data.c;
+      const prev  = data.pc;
+      const chg   = prev ? ((price - prev) / prev) * 100 : 0;
+      results.push({ sym, price, chg });
+      const fmt = price >= 1000
+        ? '$' + price.toLocaleString('en-US', {maximumFractionDigits: 0})
+        : '$' + price.toLocaleString('en-US', {maximumFractionDigits: 4});
       lines.push(`${sym}: ${fmt} (${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%)`);
-    }
-    if (!grid.innerHTML) {
-      grid.innerHTML = STOCKS.map(s =>
-        `<div class="market-card"><div class="card-sym">${s}</div><div class="card-price card-loading">장 마감</div></div>`
-      ).join('');
-    }
-    stockPriceText = lines.join(', ');
-  } catch(e) {
-    document.getElementById('stockGrid').innerHTML = STOCKS.map(s =>
-      `<div class="market-card"><div class="card-sym">${s}</div><div class="card-price card-loading">오류</div></div>`
-    ).join('');
+    } catch(e) {}
   }
+
+  grid.innerHTML = '';
+  if (results.length === 0) {
+    grid.innerHTML = userCoins.map(c =>
+      `<div class="market-card"><div class="card-sym">${c}</div><div class="card-price">—</div><div class="card-placeholder">오류</div></div>`
+    ).join('');
+    return;
+  }
+  for (const { sym, price, chg } of results) {
+    const isUp = chg >= 0;
+    const fmt  = price >= 1000
+      ? '$' + price.toLocaleString('en-US', {maximumFractionDigits: 0})
+      : '$' + price.toLocaleString('en-US', {maximumFractionDigits: 4});
+    grid.innerHTML += `<div class="market-card ${isUp?'up-card':'down-card'}">
+      <div class="card-sym">${sym}</div>
+      <div class="card-price">${fmt}</div>
+      <div class="card-chg ${isUp?'up':'down'}">${isUp?'+':''}${chg.toFixed(2)}%</div>
+    </div>`;
+  }
+  coinPriceText = lines.join(', ');
+  document.getElementById('timestamp').textContent = '업데이트: ' + new Date().toLocaleTimeString('ko-KR');
 }
 
+/* ── LOAD STOCKS (Finnhub) ── */
+async function loadStocks() {
+  const key = getFinnhubKey();
+  const grid = document.getElementById('stockGrid');
+  if (!key) {
+    grid.innerHTML = userStocks.map(s =>
+      `<div class="market-card"><div class="card-sym">${s}</div><div class="card-price">—</div><div class="card-placeholder">설정에서 Finnhub 키 입력</div></div>`
+    ).join('');
+    return;
+  }
+  grid.innerHTML = userStocks.map(s =>
+    `<div class="market-card"><div class="card-sym">${s}</div><div class="card-price card-placeholder">로딩 중...</div></div>`
+  ).join('');
+
+  const lines = [];
+  const results = [];
+  for (const sym of userStocks) {
+    try {
+      const r = await fetch(`https://finnhub.io/api/v1/quote?symbol=${sym}&token=${key}`);
+      const data = await r.json();
+      if (!data.c || data.c === 0) continue;
+      const price = data.c;
+      const prev  = data.pc;
+      const chg   = prev ? ((price - prev) / prev) * 100 : 0;
+      results.push({ sym, price, chg });
+      lines.push(`${sym}: $${price.toFixed(2)} (${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%)`);
+    } catch(e) {}
+  }
+
+  grid.innerHTML = '';
+  if (results.length === 0) {
+    grid.innerHTML = userStocks.map(s =>
+      `<div class="market-card"><div class="card-sym">${s}</div><div class="card-price">—</div><div class="card-placeholder">장 마감 또는 오류</div></div>`
+    ).join('');
+    return;
+  }
+  for (const { sym, price, chg } of results) {
+    const isUp = chg >= 0;
+    const fmt  = '$' + price.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+    grid.innerHTML += `<div class="market-card ${isUp?'up-card':'down-card'}">
+      <div class="card-sym">${sym}</div>
+      <div class="card-price">${fmt}</div>
+      <div class="card-chg ${isUp?'up':'down'}">${isUp?'+':''}${chg.toFixed(2)}%</div>
+    </div>`;
+  }
+  stockPriceText = lines.join(', ');
+  document.getElementById('timestamp').textContent = '주식 업데이트: ' + new Date().toLocaleTimeString('ko-KR');
+}
+
+/* ── RESULT ── */
 function setLoading(msg) {
   document.getElementById('resultSection').innerHTML = `
     <div class="loading-wrap">
-      <div class="loading-logo">BRIEF.AI</div>
+      <div class="loading-logo">LENZ</div>
       <div class="loading-bar"><div class="loading-bar-fill"></div></div>
       <div class="loading-msg">${msg}</div>
     </div>`;
 }
-
 function setResult(text) {
-  document.getElementById('resultSection').innerHTML =
-    `<div class="result-text">${escHtml(text)}</div>`;
+  document.getElementById('resultSection').innerHTML = `<div class="result-text">${escHtml(text)}</div>`;
+  document.getElementById('timestamp').textContent = '브리핑: ' + new Date().toLocaleTimeString('ko-KR');
 }
-
 function escHtml(t) {
   return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-async function callGemini(prompt) {
+/* ── GEMINI CALL ── */
+async function callGemini(prompt, maxTokens = 3000) {
   const key = getKey();
-  if (!key) { setResult('API 키를 먼저 입력하고 저장해주세요.'); return null; }
+  if (!key) { setResult('API 키를 설정 탭에서 입력해주세요.'); return null; }
   const r = await fetch(`${GEMINI_URL}?key=${key}`, {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
+    method: 'POST', headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({
       contents: [{ parts: [{ text: prompt }] }],
       tools: [{ googleSearch: {} }],
-      generationConfig: { temperature: 0.7, maxOutputTokens: 3000 }
+      generationConfig: { temperature: 0.7, maxOutputTokens: maxTokens }
     })
   });
   if (!r.ok) {
@@ -411,11 +828,13 @@ async function callGemini(prompt) {
   return data.candidates?.[0]?.content?.parts?.[0]?.text || '응답 없음';
 }
 
+/* ── BRIEFING ── */
 async function runBriefing() {
-  const wantMarket = document.querySelector('#chk-market input').checked;
+  const wantGlobal = document.querySelector('#chk-global input').checked;
+  const wantUS     = document.querySelector('#chk-us input').checked;
   const wantCoin   = document.querySelector('#chk-coin input').checked;
-  const wantStock  = document.querySelector('#chk-stock input').checked;
-  if (!wantMarket && !wantCoin && !wantStock) {
+  const wantKR     = document.querySelector('#chk-kr input').checked;
+  if (!wantGlobal && !wantUS && !wantCoin && !wantKR) {
     setResult('브리핑 항목을 하나 이상 선택해주세요.'); return;
   }
 
@@ -424,53 +843,70 @@ async function runBriefing() {
   document.getElementById('briefBtnText').textContent = '분석 중...';
   setLoading('실시간 데이터 수집 중...');
 
-  // 주식 가격 먼저 가져오기
-  if (wantStock) await loadStocks();
-
+  if (wantUS) await loadStocks();
   setLoading('시장 분석 중...');
-  const today = new Date().toLocaleDateString('ko-KR', {year:'numeric',month:'long',day:'numeric'});
+
+  const today  = new Date().toLocaleDateString('ko-KR', {year:'numeric',month:'long',day:'numeric'});
+  const period = getPeriodText();
+  const analystRole = `당신은 월가와 여의도에서 20년 이상 활동한 수석 시장 애널리스트입니다. 데이터 기반의 냉철한 분석, 임팩트 있는 핵심 요약, 명확한 시장 관점 제시가 특기입니다.`;
 
   let sections = '';
-  if (wantMarket) sections += `
-🌏 미중 동향
-핵심 이슈 2가지. 각 이슈 2문장 완성. X(트위터) site:x.com 및 Reddit site:reddit.com r/geopolitics r/worldnews 소셜 동향 포함. 3번째 이슈 절대 금지.
+  if (wantGlobal) sections += `
+━━━━━━━━━━━━━━━━━━━━━
+🌍 전세계 동향 [${period}]
+${period} 기준 글로벌 시장에 영향을 주는 핵심 이슈 2가지.
+각 이슈: 제목 + 2문장 분석. X(트위터) site:x.com 및 Reddit site:reddit.com/r/geopolitics 동향 포함.
+3번째 이슈 절대 금지.
 `;
   if (wantCoin) sections += `
-₿ 코인 시장 (아래 실시간 가격 사용)
-현재 코인 가격: ${coinPriceText || '데이터 없음'}
-Reddit site:reddit.com r/Bitcoin r/CryptoCurrency 커뮤니티 동향 포함.
-• BTC: [가격/등락률] — [한 문장 분석. 끝.]
-• ETH: [가격/등락률] — [한 문장 분석. 끝.]
-• XRP: [가격/등락률] — [한 문장 분석. 끝.]
-• SOL: [가격/등락률] — [한 문장 분석. 끝.]
+━━━━━━━━━━━━━━━━━━━━━
+₿ 코인 시장 [${period}]
+현재 실시간 가격: ${coinPriceText || '데이터 없음'}
+X(트위터) site:x.com 및 Reddit site:reddit.com/r/Bitcoin r/CryptoCurrency 동향 반드시 포함.
+${userCoins.map(c => `• ${c} — [가격/등락률]: [한 문장 핵심 분석. 끝.]`).join('\n')}
+[애널리스트 코인 시장 총평 — 2문장 완성.]
 `;
-  if (wantStock) sections += `
-📈 미국 증시 (아래 실시간 가격 사용)
+  if (wantUS) sections += `
+━━━━━━━━━━━━━━━━━━━━━
+📈 미국 증시 [${period}]
 현재 주가: ${stockPriceText || '데이터 없음'}
-• TSLA: [가격/등락률] — [한 문장 분석. 끝.]
-• NVDA: [가격/등락률] — [한 문장 분석. 끝.]
-• SPY: [가격/등락률] — [한 문장 분석. 끝.]
-• QQQ: [가격/등락률] — [한 문장 분석. 끝.]
+X(트위터) site:x.com 및 Reddit site:reddit.com/r/stocks r/wallstreetbets 동향 반드시 포함.
+${userStocks.map(s => `• ${s} — [가격/등락률]: [한 문장 핵심 분석. 끝.]`).join('\n')}
+[애널리스트 증시 총평 — 2문장 완성.]
+`;
+  if (wantKR) sections += `
+━━━━━━━━━━━━━━━━━━━━━
+🇰🇷 한국 주식 시장 [${period}]
+네이버 금융 news.naver.com/finance, X(트위터) 한국 투자자 동향 포함.
+• 코스피: [지수/등락] — [한 문장. 끝.]
+• 코스닥: [지수/등락] — [한 문장. 끝.]
+• 주목 섹터: [한 문장. 끝.]
+[애널리스트 한국 시장 총평 — 2문장 완성.]
 `;
   sections += `
-💡 종합 인사이트
-정확히 3문장. 4번째 문장 절대 금지.
+━━━━━━━━━━━━━━━━━━━━━
+💡 애널리스트 종합 의견
+핵심 인사이트 2문장.
+주목할 종목/자산 관점 1문장 (분석적 의견, 매수 권유 아님).
+단기 리스크 1문장.
+※ 4문장 초과 절대 금지.
 
-⚠️ 투자 조언이 아닌 정보 제공 목적입니다.`;
+⚠️ 본 브리핑은 투자 참고용이며, 투자 결과 책임은 투자자 본인에게 있습니다.`;
 
-  const prompt = `오늘은 ${today}입니다. 실시간 구글 검색으로 최신 정보를 검색 후 한국어로 브리핑하세요.
+  const prompt = `${analystRole}
 
-[중요 규칙]
-- 각 항목 정해진 형식 엄수, 절대 초과 금지
-- 모든 문장 완성된 형태로 끝낼 것
-- 핵심만 간결하게
+오늘은 ${today}입니다. 실시간 구글 검색으로 ${period} 기준 최신 정보를 검색 후 아래 형식으로 한국어 브리핑을 작성하세요.
+
+[필수 규칙]
+- 각 항목 정해진 형식과 문장 수 엄수
+- 모든 문장 반드시 완성된 형태로 마무리
+- 수치와 데이터 기반 전문적 표현
+- 핵심만 임팩트 있게
 ${sections}`;
 
   try {
-    const result = await callGemini(prompt);
+    const result = await callGemini(prompt, 3000);
     if (result) setResult(result);
-    document.getElementById('timestamp').textContent =
-      '브리핑: ' + new Date().toLocaleTimeString('ko-KR');
   } catch(e) {
     setResult(`오류: ${e.message}`);
   }
@@ -478,31 +914,31 @@ ${sections}`;
   document.getElementById('briefBtnText').textContent = '브리핑 시작';
 }
 
+/* ── QUICK / ASK ── */
 function quickAsk(q) {
   document.getElementById('askInput').value = q;
   askQuestion();
 }
-
 async function askQuestion() {
   const input = document.getElementById('askInput');
   const q = input.value.trim();
   if (!q) return;
   input.value = '';
-  setLoading('검색 및 분석 중...');
+  setLoading('분석 중...');
+  const prompt = `당신은 월가와 여의도에서 20년 이상 활동한 수석 시장 애널리스트입니다.
 
-  const prompt = `질문: ${q}
+질문: ${q}
 
-실시간 구글 검색으로 답해주세요.
-TSLA, NVDA, SPY, QQQ, BTC, ETH, XRP, SOL, 미중 관계 관련이면 최신 정보 포함.
-Reddit site:reddit.com r/Bitcoin r/stocks r/CryptoCurrency 커뮤니티 동향도 포함.
-핵심만 간결하게, 반드시 완성된 문장으로 답변.
-마지막에 "⚠️ 투자 조언이 아닌 정보 제공 목적입니다." 추가.`;
+실시간 구글 검색으로 최신 정보를 찾아 아래 원칙에 따라 답변하세요:
 
+1. 데이터와 수치 기반의 냉철한 분석
+2. X(트위터) site:x.com 및 Reddit 커뮤니티 시장 동향 포함
+3. 전문적이고 임팩트 있는 표현, 모든 문장 완성된 형태로
+4. 마지막에 애널리스트로서의 시장 관점 1문장 (직접 매수 권유 아닌 분석적 의견)
+5. 최종 줄: "⚠️ 본 의견은 20년차 시장 애널리스트의 분석적 관점이며, 투자 결과의 책임은 투자자 본인에게 있습니다."`;
   try {
-    const result = await callGemini(prompt);
+    const result = await callGemini(prompt, 2000);
     if (result) setResult(result);
-    document.getElementById('timestamp').textContent =
-      '답변: ' + new Date().toLocaleTimeString('ko-KR');
   } catch(e) {
     setResult(`오류: ${e.message}`);
   }

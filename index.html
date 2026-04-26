@@ -286,81 +286,49 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); min-
 
   <div class="page-header">
     <div class="header-row">
+      <img src="logo_v2.png" alt="WOOARABIN" class="brand-logo">
       <div class="logo">LE<em>N</em>Z</div>
-      <div class="live-pill"><div class="live-dot"></div>LIVE</div>
     </div>
     <div class="header-sub">글로벌 시장 실시간 분석 에이전트</div>
   </div>
 
-  <div class="section-spacer"></div>
-
-  <div class="section">
-    <div class="section-label">코인 시장</div>
-    <div class="market-grid" id="coinGrid">
-      <div class="market-card"><div class="card-sym">BTC</div><div class="card-price">—</div></div>
-      <div class="market-card"><div class="card-sym">ETH</div><div class="card-price">—</div></div>
-      <div class="market-card"><div class="card-sym">XRP</div><div class="card-price">—</div></div>
-      <div class="market-card"><div class="card-sym">SOL</div><div class="card-price">—</div></div>
-    </div>
+  <div class="period-tabs">
+    <button class="period-tab active" data-period="day" onclick="setPeriod('day')">당일</button>
+    <button class="period-tab" data-period="week" onclick="setPeriod('week')">주간</button>
+    <button class="period-tab" data-period="month" onclick="setPeriod('month')">월간</button>
   </div>
 
-  <div class="section">
-    <div class="section-label">미국 증시</div>
-    <div class="market-grid" id="stockGrid">
-      <div class="market-card"><div class="card-sym">TSLA</div><div class="card-price">—</div><div class="card-placeholder">브리핑 시 업데이트</div></div>
-      <div class="market-card"><div class="card-sym">NVDA</div><div class="card-price">—</div><div class="card-placeholder">브리핑 시 업데이트</div></div>
-      <div class="market-card"><div class="card-sym">SPY</div><div class="card-price">—</div><div class="card-placeholder">브리핑 시 업데이트</div></div>
-      <div class="market-card"><div class="card-sym">QQQ</div><div class="card-price">—</div><div class="card-placeholder">브리핑 시 업데이트</div></div>
-    </div>
+  <div class="search-bar-wrap">
+    <input type="text" class="search-input" id="searchInput" placeholder="종목 검색...">
+    <button class="search-cat-btn" data-cat="coin" onclick="setSearchCat('coin')">코인</button>
+    <button class="search-cat-btn" data-cat="us" onclick="setSearchCat('us')">미국</button>
+    <button class="search-cat-btn active" data-cat="kr" onclick="setSearchCat('kr')">한국</button>
   </div>
 
   <div class="section-spacer"></div>
 
   <div class="section">
-    <div class="section-label">뉴스 기간</div>
-    <div class="period-tabs">
-      <div class="period-tab active" onclick="setPeriod('today',this)">당일</div>
-      <div class="period-tab" onclick="setPeriod('week',this)">주간</div>
-      <div class="period-tab" onclick="setPeriod('month',this)">월간</div>
+    <div class="fav-section-head">
+      <div class="section-label">CRYPTO</div>
+      <button class="fav-edit-btn" onclick="editFav('coin')">편집</button>
     </div>
+    <div class="fav-list" id="favCoin"></div>
   </div>
 
   <div class="section">
-    <div class="section-label">브리핑 항목</div>
-    <div class="check-group">
-      <label class="check-item active" id="chk-global">
-        <input type="checkbox" checked onchange="toggleCheck(this,'chk-global')">
-        <div class="check-box"></div>
-        <div class="check-info">
-          <div class="check-label">전세계 동향</div>
-          <div class="check-desc">미중 관계 · 지정학 · 매크로 이슈</div>
-        </div>
-      </label>
-      <label class="check-item active" id="chk-us">
-        <input type="checkbox" checked onchange="toggleCheck(this,'chk-us')">
-        <div class="check-box"></div>
-        <div class="check-info">
-          <div class="check-label">미국 증시</div>
-          <div class="check-desc">TSLA · NVDA · SPY · QQQ</div>
-        </div>
-      </label>
-      <label class="check-item active" id="chk-coin">
-        <input type="checkbox" checked onchange="toggleCheck(this,'chk-coin')">
-        <div class="check-box"></div>
-        <div class="check-info">
-          <div class="check-label">코인 시장</div>
-          <div class="check-desc">BTC · ETH · XRP · SOL</div>
-        </div>
-      </label>
-      <label class="check-item active" id="chk-kr">
-        <input type="checkbox" checked onchange="toggleCheck(this,'chk-kr')">
-        <div class="check-box"></div>
-        <div class="check-info">
-          <div class="check-label">한국 주식 시장</div>
-          <div class="check-desc">코스피 · 코스닥 · 주요 종목</div>
-        </div>
-      </label>
+    <div class="fav-section-head">
+      <div class="section-label">US STOCKS</div>
+      <button class="fav-edit-btn" onclick="editFav('us')">편집</button>
     </div>
+    <div class="fav-list" id="favUS"></div>
+  </div>
+
+  <div class="section">
+    <div class="fav-section-head">
+      <div class="section-label">KR STOCKS</div>
+      <button class="fav-edit-btn" onclick="editFav('kr')">편집</button>
+    </div>
+    <div class="fav-list" id="favKR"></div>
   </div>
 
   <div class="section-spacer"></div>
@@ -369,13 +337,6 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); min-
     <button class="brief-btn" id="briefBtn" onclick="runBriefing()">
       <span id="briefBtnText">브리핑 시작</span>
     </button>
-  </div>
-
-  <div class="result-wrap" id="resultSection">
-    <div class="result-placeholder">
-      <span class="icon">📊</span>
-      항목을 선택하고<br>브리핑을 시작하세요
-    </div>
   </div>
 
 </div>
@@ -501,6 +462,27 @@ const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemi
 const DEFAULT_COINS  = ['BTC','ETH','XRP','SOL'];
 const DEFAULT_STOCKS = ['TSLA','NVDA','SPY','QQQ'];
 
+let currentPeriod = 'day';
+let currentSearchCat = 'kr';
+
+function setPeriod(p) {
+  currentPeriod = p;
+  document.querySelectorAll('.period-tab').forEach(b => {
+    b.classList.toggle('active', b.dataset.period === p);
+  });
+}
+
+function setSearchCat(c) {
+  currentSearchCat = c;
+  document.querySelectorAll('.search-cat-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.cat === c);
+  });
+}
+
+function editFav(cat) {
+  alert('편집 기능은 다음 단계에서 구현됩니다');
+}
+  
 const COIN_FINNHUB = {
   BTC:'BINANCE:BTCUSDT', ETH:'BINANCE:ETHUSDT', XRP:'BINANCE:XRPUSDT',
   SOL:'BINANCE:SOLUSDT', DOGE:'BINANCE:DOGEUSDT', ADA:'BINANCE:ADAUSDT',

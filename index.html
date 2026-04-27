@@ -500,10 +500,11 @@ function fmtPrice(num, cat) {
 }
 
 function fmtChange(rate) {
-  if (rate == null || isNaN(rate)) return { text: '-', cls: 'flat' };
-  const sign = rate > 0 ? '+' : '';
-  const cls = rate > 0 ? 'up' : (rate < 0 ? 'down' : 'flat');
-  return { text: `${sign}${rate.toFixed(2)}%`, cls };
+  const num = Number(rate);
+  if (rate == null || isNaN(num)) return { text: '-', cls: 'flat' };
+  const sign = num > 0 ? '+' : '';
+  const cls = num > 0 ? 'up' : (num < 0 ? 'down' : 'flat');
+  return { text: `${sign}${num.toFixed(2)}%`, cls };
 }
 
 function renderFavCard(item, cat) {
@@ -547,14 +548,16 @@ async function fetchKRPrice(code) {
 
 async function fetchCoinPrice(sym) {
   try {
-    const map = { BTC: 'bitcoin', ETH: 'ethereum', SOL: 'solana', XRP: 'ripple', DOGE: 'dogecoin', ADA: 'cardano', AVAX: 'avalanche-2', MATIC: 'matic-network', DOT: 'polkadot', LINK: 'chainlink' };
-    const id = map[sym.toUpperCase()] || sym.toLowerCase();
-    const r = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=usd&include_24hr_change=true`);
+    const key = localStorage.getItem('finnhub_key');
+    if (!key) return null;
+    const finnhubSym = COIN_FINNHUB[sym.toUpperCase()];
+    if (!finnhubSym) return null;
+    const r = await fetch(`https://finnhub.io/api/v1/quote?symbol=${finnhubSym}&token=${key}`);
     if (!r.ok) return null;
     const d = await r.json();
-    const v = d[id];
-    if (!v) return null;
-    return { price: v.usd, changeRate: v.usd_24h_change };
+    if (!d.c || d.c === 0) return null;
+    const rate = d.pc ? ((d.c - d.pc) / d.pc) * 100 : 0;
+    return { price: d.c, changeRate: rate };
   } catch (e) { return null; }
 }
 

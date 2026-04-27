@@ -366,9 +366,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); min-
 
   <div class="section-spacer"></div>
 
-  async function runBriefing() {
-  alert('브리핑 기능은 다음 단계에서 재작성됩니다');
-  }
+
   
   <!-- 기본 기간 -->
   <div class="section">
@@ -693,7 +691,6 @@ function saveFinnhubKey() {
   const el = document.getElementById('finnhubSaved');
   el.style.display = 'block';
   setTimeout(() => el.style.display = 'none', 2000);
-  loadStocks();
 }
 function getFinnhubKey() {
   return document.getElementById('finnhubKey')?.value.trim() || localStorage.getItem('finnhub_key') || '';
@@ -759,13 +756,11 @@ function addCoinTag() {
   if (userCoins.includes(sym)) { input.value = ''; return; }
   userCoins.push(sym);
   renderCoinTags();
-  updateCoinGrid();
   input.value = '';
 }
 function removeCoin(c) {
   userCoins = userCoins.filter(x => x !== c);
   renderCoinTags();
-  updateCoinGrid();
 }
 
 function addStockTag() {
@@ -775,13 +770,11 @@ function addStockTag() {
   if (userStocks.includes(val)) { input.value = ''; return; }
   userStocks.push(val);
   renderStockTags();
-  updateStockGrid();
   input.value = '';
 }
 function removeStock(s) {
   userStocks = userStocks.filter(x => x !== s);
   renderStockTags();
-  updateStockGrid();
 }
 
 
@@ -841,7 +834,9 @@ async function callGemini(prompt, maxTokens = 3000) {
   return data.candidates?.[0]?.content?.parts?.[0]?.text || '응답 없음';
 }
 
-
+  async function runBriefing() {
+  alert('브리핑 기능은 다음 단계에서 재작성됩니다');
+  }
 
 /* ── QUICK / ASK ── */
 function quickAsk(q) {

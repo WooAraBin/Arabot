@@ -319,6 +319,10 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); min-
 
   <div class="section-spacer"></div>
 
+  <div class="section-spacer"></div>
+
+  <div class="section" id="resultSection" style="display:none;"></div>
+  
   <div class="brief-section">
     <button class="brief-btn" id="briefBtn" onclick="runBriefing()">
       <span id="briefBtnText">브리핑 시작</span>
@@ -799,17 +803,24 @@ function saveSettings() {
 
 /* ── RESULT ── */
 function setLoading(msg) {
-  document.getElementById('resultSection').innerHTML = `
+  const el = document.getElementById('resultSection');
+  el.style.display = 'block';
+  el.innerHTML = `
     <div class="loading-wrap">
       <div class="loading-logo">LENZ</div>
       <div class="loading-bar"><div class="loading-bar-fill"></div></div>
       <div class="loading-msg">${msg}</div>
     </div>`;
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 function setResult(text) {
-  document.getElementById('resultSection').innerHTML = `<div class="result-text">${escHtml(text)}</div>`;
+  const el = document.getElementById('resultSection');
+  el.style.display = 'block';
+  el.innerHTML = `<div class="result-text">${escHtml(text)}</div>`;
   document.getElementById('timestamp').textContent = '브리핑: ' + new Date().toLocaleTimeString('ko-KR');
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
+  
 function escHtml(t) {
   return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }

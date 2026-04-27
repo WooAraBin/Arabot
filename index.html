@@ -947,8 +947,52 @@ ${list}
 }
 
 async function briefKR(favs, periodLabel, today) {
-  // E-3에서 구현
-  return '한국 증시 분석은 다음 단계에서 추가됩니다.';
+  // 1단계: 네이버 뉴스 수집
+  const newsBlocks = [];
+
+  for (const fav of favs) {
+    try {
+      const r = await fetch(`/api/naver-search?query=${encodeURIComponent(fav.name || fav.sym)}&type=news&display=5&sort=date`);
+      if (!r.ok) continue;
+      const data = await r.json();
+      const items = (data.items || []).map(it => {
+        const title = (it.title || '').replace(/<\/?b>/g, '').replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&apos;/g, "'");
+        const desc = (it.description || '').replace(/<\/?b>/g, '').replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&apos;/g, "'");
+        const date = it.pubDate || '';
+        return `- [${date}] ${title} :: ${desc}`;
+      }).join('\n');
+      newsBlocks.push(`▼ ${fav.sym} (${fav.name})\n${items || '뉴스 없음'}`);
+    } catch (e) {
+      newsBlocks.push(`▼ ${fav.sym} (${fav.name})\n뉴스 수집 실패`);
+    }
+  }
+
+  const list = buildFavList(favs);
+  const newsText = newsBlocks.join('\n\n');
+
+  // 2단계: Gemini 요약
+  const prompt = `오늘은 ${today}입니다. ${periodLabel} 기준 한국 주식 시장 브리핑을 작성합니다.
+
+[현재 가격]
+${list}
+
+[수집된 네이버 뉴스]
+${newsText}
+
+[형식 — 반드시 준수]
+- 종목별 분석 (각 1줄, 가격/등락률은 위 데이터 인용, 핵심 이슈는 뉴스 기반)
+- 마지막에 "⭐ 오늘의 주목 종목: [종목명] — [선정 근거 2문장. 뉴스 기반.]"
+
+[톤]
+- 보고체 ("~합니다", "~입니다")
+- 추측 표현 금지
+- 감정/과장 금지
+- 자기소개 금지
+- 핵심만 간결하게
+- ${periodLabel} 관련 뉴스 없으면 "관련 뉴스 없음"으로 명시
+- 뉴스 출처는 "네이버 뉴스 기준" 으로만 표기, 개별 언론사명 나열 금지`;
+
+  return await callGemini(prompt, 1500);
 }
 
 /* ── QUICK / ASK ── */

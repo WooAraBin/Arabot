@@ -79,21 +79,10 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); min-
   position: sticky; top: 0; z-index: 10;
   box-shadow: 0 2px 12px rgba(15,31,61,0.04);
 }
-.header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; }
+.header-row { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
 .logo { font-family: var(--display); font-size: 26px; font-weight: 800; color: var(--navy); letter-spacing: -0.5px; }
 .logo em { color: var(--navy3); font-style: normal; }
 .brand-logo { height: 28px; width: auto; display: block; flex-shrink: 0; max-width: 140px; object-fit: contain; }
-.live-pill {
-  display: flex; align-items: center; gap: 5px;
-  background: var(--accent-light); border: 0.5px solid var(--border2);
-  border-radius: 20px; padding: 4px 10px;
-  font-family: var(--display); font-size: 9px; font-weight: 700;
-  color: var(--navy2); letter-spacing: 0.08em;
-}
-.live-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--up); animation: blink 2s infinite; }
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.4} }
-.header-sub { font-size: 11px; color: var(--text2); letter-spacing: 0.02em; }
-.page-title { font-family: var(--display); font-size: 20px; font-weight: 800; color: var(--navy); }
 
 /* ── SECTIONS ── */
 .section { padding: 16px 20px; border-bottom: 0.5px solid var(--border); background: var(--bg2); }

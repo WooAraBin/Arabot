@@ -279,9 +279,9 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); min-
   </div>
 
   <div class="period-tabs">
-    <button class="period-tab active" data-period="day" onclick="setPeriod('day')">당일</button>
-    <button class="period-tab" data-period="week" onclick="setPeriod('week')">주간</button>
-    <button class="period-tab" data-period="month" onclick="setPeriod('month')">월간</button>
+<button class="period-tab active" data-period="day" onclick="setPeriod('day', this)">당일</button>
+<button class="period-tab" data-period="week" onclick="setPeriod('week', this)">주간</button>
+<button class="period-tab" data-period="month" onclick="setPeriod('month', this)">월간</button>
   </div>
 
   <div class="search-bar-wrap">
@@ -596,15 +596,8 @@ window.addEventListener('DOMContentLoaded', () => {
   loadAllFavPrices();
 });
 
-  let currentPeriod = 'day';
+/* ── PHASE 2: 검색 카테고리 + 편집 ── */
 let currentSearchCat = 'kr';
-
-function setPeriod(p) {
-  currentPeriod = p;
-  document.querySelectorAll('.period-tab').forEach(b => {
-    b.classList.toggle('active', b.dataset.period === p);
-  });
-}
 
 function setSearchCat(c) {
   currentSearchCat = c;
@@ -616,7 +609,6 @@ function setSearchCat(c) {
 function editFav(cat) {
   alert('편집 기능은 다음 단계에서 구현됩니다');
 }
-  
   
   
 const COIN_FINNHUB = {

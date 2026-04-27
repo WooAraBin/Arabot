@@ -366,6 +366,10 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); min-
 
   <div class="section-spacer"></div>
 
+  async function runBriefing() {
+  alert('브리핑 기능은 다음 단계에서 재작성됩니다');
+  }
+  
   <!-- 기본 기간 -->
   <div class="section">
     <div class="section-label">기본 뉴스 기간</div>
@@ -663,24 +667,12 @@ window.addEventListener('load', () => {
   renderCoinTags();
   renderStockTags();
   syncDefaultPeriodUI();
-  loadCoins();
-  loadStocks();
-  startAutoRefresh();
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 });
 
-document.addEventListener('visibilitychange', () => {
-  if (document.hidden) stopAutoRefresh();
-  else { loadCoins(); loadStocks(); startAutoRefresh(); }
-});
 
-function startAutoRefresh() {
-  stopAutoRefresh();
-  refreshTimer = setInterval(() => { loadCoins(); loadStocks(); }, 30000);
-}
-function stopAutoRefresh() {
-  if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null; }
-}
+
+
 
 /* ── KEY ── */
 function saveKey() {
@@ -753,7 +745,7 @@ function resolveCoinInput(raw) {
   const trimmed = raw.trim();
   const upper = trimmed.toUpperCase();
   if (COIN_KR[trimmed]) return COIN_KR[trimmed];
-  if (COIN_IDS[upper])  return upper;
+  if (COIN_FINNHUB[upper]) return upper;
   if (upper.length >= 2 && upper.length <= 10) return upper;
   return null;
 }
@@ -792,20 +784,9 @@ function removeStock(s) {
   updateStockGrid();
 }
 
-function updateCoinGrid() {
-  const grid = document.getElementById('coinGrid');
-  grid.innerHTML = userCoins.map(c =>
-    `<div class="market-card"><div class="card-sym">${c}</div><div class="card-price">—</div></div>`
-  ).join('');
-  loadCoins();
-}
 
-function updateStockGrid() {
-  const grid = document.getElementById('stockGrid');
-  grid.innerHTML = userStocks.map(s =>
-    `<div class="market-card"><div class="card-sym">${s}</div><div class="card-price">—</div><div class="card-placeholder">브리핑 시 업데이트</div></div>`
-  ).join('');
-}
+
+
 function saveSettings() {
   const key        = document.getElementById('apiKey').value.trim();
   const finnhubKey = document.getElementById('finnhubKey').value.trim();
@@ -817,114 +798,11 @@ function saveSettings() {
   const notice = document.getElementById('saveNotice');
   notice.style.display = 'block';
   setTimeout(() => notice.style.display = 'none', 2000);
-  updateCoinGrid();
-  updateStockGrid();
-  loadStocks();
 }
 
-/* ── LOAD COINS (Finnhub) ── */
-async function loadCoins() {
-  const key  = getFinnhubKey();
-  const grid = document.getElementById('coinGrid');
 
-  if (!key) {
-    grid.innerHTML = userCoins.map(c =>
-      `<div class="market-card"><div class="card-sym">${c}</div><div class="card-price">—</div><div class="card-placeholder">설정에서 Finnhub 키 입력</div></div>`
-    ).join('');
-    return;
-  }
 
-  const lines = [];
-  const results = [];
 
-  for (const sym of userCoins) {
-    const finnhubSym = COIN_FINNHUB[sym];
-    if (!finnhubSym) continue;
-    try {
-      const r = await fetch(`https://finnhub.io/api/v1/quote?symbol=${finnhubSym}&token=${key}`);
-      const data = await r.json();
-      if (!data.c || data.c === 0) continue;
-      const price = data.c;
-      const prev  = data.pc;
-      const chg   = prev ? ((price - prev) / prev) * 100 : 0;
-      results.push({ sym, price, chg });
-      const fmt = price >= 1000
-        ? '$' + price.toLocaleString('en-US', {maximumFractionDigits: 0})
-        : '$' + price.toLocaleString('en-US', {maximumFractionDigits: 4});
-      lines.push(`${sym}: ${fmt} (${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%)`);
-    } catch(e) {}
-  }
-
-  grid.innerHTML = '';
-  if (results.length === 0) {
-    grid.innerHTML = userCoins.map(c =>
-      `<div class="market-card"><div class="card-sym">${c}</div><div class="card-price">—</div><div class="card-placeholder">오류</div></div>`
-    ).join('');
-    return;
-  }
-  for (const { sym, price, chg } of results) {
-    const isUp = chg >= 0;
-    const fmt  = price >= 1000
-      ? '$' + price.toLocaleString('en-US', {maximumFractionDigits: 0})
-      : '$' + price.toLocaleString('en-US', {maximumFractionDigits: 4});
-    grid.innerHTML += `<div class="market-card ${isUp?'up-card':'down-card'}">
-      <div class="card-sym">${sym}</div>
-      <div class="card-price">${fmt}</div>
-      <div class="card-chg ${isUp?'up':'down'}">${isUp?'+':''}${chg.toFixed(2)}%</div>
-    </div>`;
-  }
-  coinPriceText = lines.join(', ');
-  document.getElementById('timestamp').textContent = '업데이트: ' + new Date().toLocaleTimeString('ko-KR');
-}
-
-/* ── LOAD STOCKS (Finnhub) ── */
-async function loadStocks() {
-  const key = getFinnhubKey();
-  const grid = document.getElementById('stockGrid');
-  if (!key) {
-    grid.innerHTML = userStocks.map(s =>
-      `<div class="market-card"><div class="card-sym">${s}</div><div class="card-price">—</div><div class="card-placeholder">설정에서 Finnhub 키 입력</div></div>`
-    ).join('');
-    return;
-  }
-  grid.innerHTML = userStocks.map(s =>
-    `<div class="market-card"><div class="card-sym">${s}</div><div class="card-price card-placeholder">로딩 중...</div></div>`
-  ).join('');
-
-  const lines = [];
-  const results = [];
-  for (const sym of userStocks) {
-    try {
-      const r = await fetch(`https://finnhub.io/api/v1/quote?symbol=${sym}&token=${key}`);
-      const data = await r.json();
-      if (!data.c || data.c === 0) continue;
-      const price = data.c;
-      const prev  = data.pc;
-      const chg   = prev ? ((price - prev) / prev) * 100 : 0;
-      results.push({ sym, price, chg });
-      lines.push(`${sym}: $${price.toFixed(2)} (${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%)`);
-    } catch(e) {}
-  }
-
-  grid.innerHTML = '';
-  if (results.length === 0) {
-    grid.innerHTML = userStocks.map(s =>
-      `<div class="market-card"><div class="card-sym">${s}</div><div class="card-price">—</div><div class="card-placeholder">장 마감 또는 오류</div></div>`
-    ).join('');
-    return;
-  }
-  for (const { sym, price, chg } of results) {
-    const isUp = chg >= 0;
-    const fmt  = '$' + price.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
-    grid.innerHTML += `<div class="market-card ${isUp?'up-card':'down-card'}">
-      <div class="card-sym">${sym}</div>
-      <div class="card-price">${fmt}</div>
-      <div class="card-chg ${isUp?'up':'down'}">${isUp?'+':''}${chg.toFixed(2)}%</div>
-    </div>`;
-  }
-  stockPriceText = lines.join(', ');
-  document.getElementById('timestamp').textContent = '주식 업데이트: ' + new Date().toLocaleTimeString('ko-KR');
-}
 
 /* ── RESULT ── */
 function setLoading(msg) {
@@ -963,91 +841,7 @@ async function callGemini(prompt, maxTokens = 3000) {
   return data.candidates?.[0]?.content?.parts?.[0]?.text || '응답 없음';
 }
 
-/* ── BRIEFING ── */
-async function runBriefing() {
-  const wantGlobal = document.querySelector('#chk-global input').checked;
-  const wantUS     = document.querySelector('#chk-us input').checked;
-  const wantCoin   = document.querySelector('#chk-coin input').checked;
-  const wantKR     = document.querySelector('#chk-kr input').checked;
-  if (!wantGlobal && !wantUS && !wantCoin && !wantKR) {
-    setResult('브리핑 항목을 하나 이상 선택해주세요.'); return;
-  }
 
-  const btn = document.getElementById('briefBtn');
-  btn.disabled = true;
-  document.getElementById('briefBtnText').textContent = '분석 중...';
-  setLoading('실시간 데이터 수집 중...');
-
-  if (wantUS) await loadStocks();
-  setLoading('시장 분석 중...');
-
-  const today  = new Date().toLocaleDateString('ko-KR', {year:'numeric',month:'long',day:'numeric'});
-  const period = getPeriodText();
-  const analystRole = `당신은 월가와 여의도에서 20년 이상 활동한 수석 시장 애널리스트입니다. 데이터 기반의 냉철한 분석, 임팩트 있는 핵심 요약, 명확한 시장 관점 제시가 특기입니다.`;
-
-  let sections = '';
-  if (wantGlobal) sections += `
-━━━━━━━━━━━━━━━━━━━━━
-🌍 전세계 동향 [${period}]
-${period} 기준 글로벌 시장에 영향을 주는 핵심 이슈 2가지.
-각 이슈: 제목 + 2문장 분석. X(트위터) site:x.com 및 Reddit site:reddit.com/r/geopolitics 동향 포함.
-3번째 이슈 절대 금지.
-`;
-  if (wantCoin) sections += `
-━━━━━━━━━━━━━━━━━━━━━
-₿ 코인 시장 [${period}]
-현재 실시간 가격: ${coinPriceText || '데이터 없음'}
-X(트위터) site:x.com 및 Reddit site:reddit.com/r/Bitcoin r/CryptoCurrency 동향 반드시 포함.
-${userCoins.map(c => `• ${c} — [가격/등락률]: [한 문장 핵심 분석. 끝.]`).join('\n')}
-[애널리스트 코인 시장 총평 — 2문장 완성.]
-`;
-  if (wantUS) sections += `
-━━━━━━━━━━━━━━━━━━━━━
-📈 미국 증시 [${period}]
-현재 주가: ${stockPriceText || '데이터 없음'}
-X(트위터) site:x.com 및 Reddit site:reddit.com/r/stocks r/wallstreetbets 동향 반드시 포함.
-${userStocks.map(s => `• ${s} — [가격/등락률]: [한 문장 핵심 분석. 끝.]`).join('\n')}
-[애널리스트 증시 총평 — 2문장 완성.]
-`;
-  if (wantKR) sections += `
-━━━━━━━━━━━━━━━━━━━━━
-🇰🇷 한국 주식 시장 [${period}]
-네이버 금융 news.naver.com/finance, X(트위터) 한국 투자자 동향 포함.
-• 코스피: [지수/등락] — [한 문장. 끝.]
-• 코스닥: [지수/등락] — [한 문장. 끝.]
-• 주목 섹터: [한 문장. 끝.]
-[애널리스트 한국 시장 총평 — 2문장 완성.]
-`;
-  sections += `
-━━━━━━━━━━━━━━━━━━━━━
-💡 애널리스트 종합 의견
-핵심 인사이트 2문장.
-주목할 종목/자산 관점 1문장 (분석적 의견, 매수 권유 아님).
-단기 리스크 1문장.
-※ 4문장 초과 절대 금지.
-
-⚠️ 본 브리핑은 투자 참고용이며, 투자 결과 책임은 투자자 본인에게 있습니다.`;
-
-  const prompt = `${analystRole}
-
-오늘은 ${today}입니다. 실시간 구글 검색으로 ${period} 기준 최신 정보를 검색 후 아래 형식으로 한국어 브리핑을 작성하세요.
-
-[필수 규칙]
-- 각 항목 정해진 형식과 문장 수 엄수
-- 모든 문장 반드시 완성된 형태로 마무리
-- 수치와 데이터 기반 전문적 표현
-- 핵심만 임팩트 있게
-${sections}`;
-
-  try {
-    const result = await callGemini(prompt, 3000);
-    if (result) setResult(result);
-  } catch(e) {
-    setResult(`오류: ${e.message}`);
-  }
-  btn.disabled = false;
-  document.getElementById('briefBtnText').textContent = '브리핑 시작';
-}
 
 /* ── QUICK / ASK ── */
 function quickAsk(q) {

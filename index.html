@@ -556,7 +556,7 @@ async function fetchCoinPrice(sym) {
 
 async function fetchUSPrice(sym) {
   try {
-    const key = localStorage.getItem('finnhubKey');
+    const key = localStorage.getItem('finnhub_key');
     if (!key) return null;
     const r = await fetch(`https://finnhub.io/api/v1/quote?symbol=${sym}&token=${key}`);
     if (!r.ok) return null;

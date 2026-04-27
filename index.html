@@ -465,6 +465,152 @@ function setSearchCat(c) {
   });
 }
 
+/* ── PHASE 2: 즐겨찾기 시스템 ── */
+
+const FAV_KEY = 'lenz_favorites_v2';
+
+const DEFAULT_FAVS = {
+  coin: [
+    { sym: 'BTC', name: 'Bitcoin' },
+    { sym: 'ETH', name: 'Ethereum' },
+    { sym: 'SOL', name: 'Solana' },
+  ],
+  us: [
+    { sym: 'TSLA', name: 'Tesla' },
+    { sym: 'NVDA', name: 'NVIDIA' },
+    { sym: 'QQQ', name: 'Invesco QQQ' },
+  ],
+  kr: [
+    { sym: '005930', name: '삼성전자' },
+  ],
+};
+
+function loadFavs() {
+  try {
+    const stored = localStorage.getItem(FAV_KEY);
+    if (stored) return JSON.parse(stored);
+  } catch (e) {}
+  return DEFAULT_FAVS;
+}
+
+function saveFavs(favs) {
+  localStorage.setItem(FAV_KEY, JSON.stringify(favs));
+}
+
+function fmtPrice(num, cat) {
+  if (num == null || isNaN(num)) return '-';
+  if (cat === 'kr') return num.toLocaleString('ko-KR') + '원';
+  if (cat === 'coin') {
+    if (num >= 1000) return '$' + num.toLocaleString('en-US', { maximumFractionDigits: 0 });
+    if (num >= 1) return '$' + num.toFixed(2);
+    return '$' + num.toFixed(4);
+  }
+  return '$' + num.toFixed(2);
+}
+
+function fmtChange(rate) {
+  if (rate == null || isNaN(rate)) return { text: '-', cls: 'flat' };
+  const sign = rate > 0 ? '+' : '';
+  const cls = rate > 0 ? 'up' : (rate < 0 ? 'down' : 'flat');
+  return { text: `${sign}${rate.toFixed(2)}%`, cls };
+}
+
+function renderFavCard(item, cat) {
+  const change = fmtChange(item.changeRate);
+  const price = fmtPrice(item.price, cat);
+  return `
+    <div class="fav-card">
+      <div class="fav-card-left">
+        <div class="fav-card-sym">${item.sym}</div>
+        <div class="fav-card-name">${item.name || ''}</div>
+      </div>
+      <div class="fav-card-right">
+        <div class="fav-card-price">${price}</div>
+        <div class="fav-card-change ${change.cls}">${change.text}</div>
+      </div>
+    </div>
+  `;
+}
+
+function renderFavSection(cat) {
+  const favs = loadFavs();
+  const list = favs[cat] || [];
+  const elId = cat === 'coin' ? 'favCoin' : (cat === 'us' ? 'favUS' : 'favKR');
+  const el = document.getElementById(elId);
+  if (!el) return;
+  if (list.length === 0) {
+    el.innerHTML = '<div class="fav-empty">즐겨찾기를 추가하세요</div>';
+    return;
+  }
+  el.innerHTML = list.map(item => renderFavCard(item, cat)).join('');
+}
+
+async function fetchKRPrice(code) {
+  try {
+    const r = await fetch(`/api/naver-stock?code=${code}`);
+    if (!r.ok) return null;
+    const d = await r.json();
+    return { price: d.price, changeRate: d.changeRate, name: d.name };
+  } catch (e) { return null; }
+}
+
+async function fetchCoinPrice(sym) {
+  try {
+    const map = { BTC: 'bitcoin', ETH: 'ethereum', SOL: 'solana', XRP: 'ripple', DOGE: 'dogecoin', ADA: 'cardano', AVAX: 'avalanche-2', MATIC: 'matic-network', DOT: 'polkadot', LINK: 'chainlink' };
+    const id = map[sym.toUpperCase()] || sym.toLowerCase();
+    const r = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=usd&include_24hr_change=true`);
+    if (!r.ok) return null;
+    const d = await r.json();
+    const v = d[id];
+    if (!v) return null;
+    return { price: v.usd, changeRate: v.usd_24h_change };
+  } catch (e) { return null; }
+}
+
+async function fetchUSPrice(sym) {
+  try {
+    const key = localStorage.getItem('finnhubKey');
+    if (!key) return null;
+    const r = await fetch(`https://finnhub.io/api/v1/quote?symbol=${sym}&token=${key}`);
+    if (!r.ok) return null;
+    const d = await r.json();
+    if (!d.c) return null;
+    return { price: d.c, changeRate: d.dp };
+  } catch (e) { return null; }
+}
+
+async function loadAllFavPrices() {
+  const favs = loadFavs();
+
+  const coinUpdated = await Promise.all(favs.coin.map(async f => {
+    const p = await fetchCoinPrice(f.sym);
+    return p ? { ...f, ...p } : f;
+  }));
+  favs.coin = coinUpdated;
+  document.getElementById('favCoin').innerHTML = coinUpdated.map(i => renderFavCard(i, 'coin')).join('') || '<div class="fav-empty">즐겨찾기를 추가하세요</div>';
+
+  const usUpdated = await Promise.all(favs.us.map(async f => {
+    const p = await fetchUSPrice(f.sym);
+    return p ? { ...f, ...p } : f;
+  }));
+  favs.us = usUpdated;
+  document.getElementById('favUS').innerHTML = usUpdated.map(i => renderFavCard(i, 'us')).join('') || '<div class="fav-empty">즐겨찾기를 추가하세요</div>';
+
+  const krUpdated = await Promise.all(favs.kr.map(async f => {
+    const p = await fetchKRPrice(f.sym);
+    return p ? { ...f, ...p, name: p.name || f.name } : f;
+  }));
+  favs.kr = krUpdated;
+  document.getElementById('favKR').innerHTML = krUpdated.map(i => renderFavCard(i, 'kr')).join('') || '<div class="fav-empty">즐겨찾기를 추가하세요</div>';
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  renderFavSection('coin');
+  renderFavSection('us');
+  renderFavSection('kr');
+  loadAllFavPrices();
+});
+  
 function editFav(cat) {
   alert('편집 기능은 다음 단계에서 구현됩니다');
 }

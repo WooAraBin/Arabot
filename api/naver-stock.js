@@ -51,20 +51,28 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: '해당 종목 데이터를 찾을 수 없습니다' });
     }
 
-    const result = {
-      code: stockData.itemCode,
-      name: stockData.stockName,
-      price: stockData.closePrice,           // 현재가
-      change: stockData.compareToPreviousClosePrice,  // 전일대비
-      changeRate: stockData.fluctuationsRatio,        // 등락률 (%)
-      changeType: stockData.compareToPreviousPrice?.code,  // 1: 상승, 2: 상한, 3: 보합, 4: 침체, 5: 하한
-      open: stockData.openPrice,
-      high: stockData.highPrice,
-      low: stockData.lowPrice,
-      volume: stockData.accumulatedTradingVolume,
-      marketCap: stockData.marketValue,      // 시가총액 (억원)
-      timestamp: stockData.localTradedAt,
-    };
+const toNum = (v) => {
+  if (v == null) return null;
+  if (typeof v === 'number') return v;
+  const cleaned = String(v).replace(/,/g, '');
+  const n = parseFloat(cleaned);
+  return isNaN(n) ? null : n;
+};
+
+const result = {
+  code: stockData.itemCode,
+  name: stockData.stockName,
+  price: toNum(stockData.closePrice),
+  change: toNum(stockData.compareToPreviousClosePrice),
+  changeRate: toNum(stockData.fluctuationsRatio),
+  changeType: stockData.compareToPreviousPrice?.code,
+  open: toNum(stockData.openPrice),
+  high: toNum(stockData.highPrice),
+  low: toNum(stockData.lowPrice),
+  volume: toNum(stockData.accumulatedTradingVolume),
+  marketCap: toNum(stockData.marketValue),
+  timestamp: stockData.localTradedAt,
+};
 
     res.setHeader('Cache-Control', 's-maxage=10, stale-while-revalidate=30');
 

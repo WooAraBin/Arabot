@@ -859,7 +859,8 @@ function getPeriodLabel(p) {
 function buildFavList(favs) {
   return favs.map(f => {
     const price = f.price != null ? fmtPrice(f.price, f._cat) : '데이터 없음';
-    const rate = f.changeRate != null ? `${f.changeRate >= 0 ? '+' : ''}${f.changeRate.toFixed(2)}%` : '';
+    const rateNum = Number(f.changeRate);
+    const rate = (f.changeRate != null && !isNaN(rateNum)) ? `${rateNum >= 0 ? '+' : ''}${rateNum.toFixed(2)}%` : '';
     return `- ${f.sym} (${f.name || ''}): ${price} ${rate}`;
   }).join('\n');
 }
